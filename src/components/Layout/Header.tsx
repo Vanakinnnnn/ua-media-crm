@@ -10,6 +10,10 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isRefreshing }) => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">
+          UA媒体账户管家与优化师信息维护 
+          <span className="ml-2 text-sm bg-green-100 text-green-600 px-2 py-1 rounded">v1.0</span>
+        </h1>
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />

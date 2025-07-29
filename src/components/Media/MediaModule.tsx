@@ -494,7 +494,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
     const isGoogleAds = isGoogleAdsAccount(account);
     const isMain = !account.parentId;
     const mainAccount = isMain ? null : getMainAccount(account);
-    
+
     // 获取FG信息，子账户继承主账户的DHID和ENV
     let fgInfo: Partial<FGInfo>;
     if (isEditing) {
@@ -538,12 +538,12 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
 
     return (
       <div className="text-sm space-y-1">
-        <div>
+              <div>
           <span className="font-medium">DHID:</span> {highlightText(dhId ?? '', appliedSearchKeyword)}
         </div>
         <div>
           <span className="font-medium">ENV:</span> {highlightText(environment ?? '', appliedSearchKeyword)}
-        </div>
+          </div>
       </div>
     );
   };
@@ -947,22 +947,22 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
         
         {/* 筛选和重置按钮 */}
         <div className="flex gap-2">
-          <button
+                <button
             onClick={handleApplyFilters}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Filter className="w-4 h-4" />
             <span>筛选</span>
-          </button>
+                </button>
           <button
             onClick={handleResetFilters}
             className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             重置
-          </button>
-        </div>
-      </div>
-      
+                  </button>
+                </div>
+              </div>
+              
       {/* 当前筛选条件显示 */}
       {(appliedFilterStatus !== 'all' || appliedSelectedMediaTypes.length > 0 || appliedSelectedDepartments.length > 0 || appliedSearchKeyword) && (
         <div className="pt-2 border-t border-gray-100">
@@ -989,10 +989,10 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
               </span>
             )}
           </div>
-        </div>
-      )}
-    </div>
-  );
+                </div>
+              )}
+            </div>
+          );
 
   // 3. 移除视图切换按钮和逻辑，只保留表格
   return (
