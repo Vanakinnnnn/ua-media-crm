@@ -65,24 +65,25 @@
 - 状态（自动/手动维护，active/closed）
 - 上次信息更新时间（系统自动记录）
 
-| 媒体         | 包含信息                                 | Note                                    |
+| 媒体         | 包含信息                                 | 编辑权限                                    |
 | ------------ | ---------------------------------------- | ---------------------------------------- |
-| Google Ads   | MCC类型（主/子MCC)、主MCC ID、Payment profile ID | 需要有添加子MCC信息按钮？                |
-| Facebook     | N/A                                     |                                          |
-| Tiktok       | Industry Type、Business Type、Billing Group ID | Industry维护以产品组/产品为单位？        |
-| Applovin     | N/A                                     |                                          |
-| Unity        | N/A                                     |                                          |
-| Moloco       | N/A                                     |                                          |
+| Google Ads   | MCC类型（主/子MCC)、Payment profile ID | 主MCC仅可编辑Payment Profile ID；子MCC不可编辑配置 |
+| Facebook     | 显示"-"（无配置项）                                     | 无配置项可编辑                                          |
+| Tiktok       | Industry ID、Business Type、Billing Group ID | BC账户可编辑所有配置项        |
+| Applovin     | 显示"-"（无配置项）                                     | 无配置项可编辑                                          |
+| Unity        | 显示"-"（无配置项）                                     | 无配置项可编辑                                          |
+| Moloco       | 显示"-"（无配置项）                                     | 无配置项可编辑                                          |
 
-- FG信息：DH ID、环境、管家ID（是否维护？）
+- FG信息：DH ID、环境（完全只读，不可编辑）
 - 状态、上次信息更新时间
 
 **交互细节**：
 - 新增/编辑弹窗内字段有必填校验，主账户ID唯一性校验
 - “申请刷新”后，页面有loading提示，刷新结果有toast反馈
-- 编辑时部分字段（如FG自动导入字段）只读不可编辑
+- FG信息（DHID、Environment）在所有平台均为只读状态，不可编辑
+- 编辑权限严格按照平台类型和账户级别控制（详见1.2编辑权限控制章节）
 
-#### 1.2 新增/编辑媒体账户弹窗
+#### 1.3 新增/编辑媒体账户弹窗
 - 支持新增和编辑媒体账户信息
 - 动态展示不同媒体类型下的专属字段
 - 支持部门多选、标签输入
@@ -93,7 +94,55 @@
 - 主账户ID不可重复
 - 配置字段按媒体类型校验格式
 
-#### 1.3 Facebook账户子模块
+#### 1.2 媒体账户编辑权限控制（2024-更新）
+
+为确保数据安全性和业务逻辑正确性，系统对不同媒体平台和账户类型实施精细化的编辑权限控制：
+
+##### 权限控制总表
+| 平台类型 | 账户信息(名称/ID) | 部门 | 状态 | 账户配置 | FG信息(DHID/ENV) |
+|---------|------------------|------|------|----------|-------------------|
+| **Google主MCC** | ❌ 不可编辑 | ❌ 由子账户决定 | ❌ 不可编辑 | ✅ 仅Payment Profile ID | ❌ 完全只读 |
+| **Google子MCC** | ✅ 可编辑 | ✅ 可编辑 | ✅ 可编辑 | ❌ 继承主MCC | ❌ 完全只读 |
+| **TikTok BC** | ✅ 可编辑 | ✅ 可编辑 | ✅ 可编辑 | ✅ 全部配置项 | ❌ 完全只读 |
+| **Facebook等其他** | ❌ 不可编辑 | ✅ 仅部门可编辑 | ❌ 不可编辑 | ❌ 显示"-" | ❌ 完全只读 |
+
+##### 详细权限说明
+
+**Google Ads平台**：
+- **主MCC账户**：
+  - 账户信息：账户名称和ID均不可编辑（保持主账户信息稳定性）
+  - 部门：不可编辑，系统自动汇总其所有子账户的部门信息
+  - 状态：不可编辑（主账户状态由系统维护）
+  - 账户配置：仅允许编辑Payment Profile ID，MCC Type不可更改
+  - FG信息：DHID和Environment完全只读
+- **子MCC账户**：
+  - 账户信息：可编辑账户名称和账户ID
+  - 部门：可编辑，支持多选
+  - 状态：可编辑（Active/Closed）
+  - 账户配置：Payment Profile ID继承主账户不可编辑，MCC Type不可更改
+  - FG信息：DHID和Environment完全只读
+
+**TikTok平台（BC账户）**：
+- 账户信息：可编辑账户名称和账户ID
+- 部门：可编辑，支持多选
+- 状态：可编辑（Active/Closed）
+- 账户配置：可编辑Industry ID、Business Type、Billing Group ID
+- FG信息：DHID和Environment完全只读
+
+**Facebook及其他媒体平台**：
+- 账户信息：不可编辑（保持API数据一致性）
+- 部门：可编辑，这是唯一可修改的字段
+- 状态：不可编辑（由API数据决定）
+- 账户配置：列显示为空("-")，无配置项可编辑
+- FG信息：DHID和Environment完全只读
+
+##### 业务逻辑说明
+1. **继承关系**：Google Ads子账户的Payment Profile ID、DHID、Environment继承主账户
+2. **部门汇总**：Google Ads主账户部门为其所有子账户部门的并集
+3. **数据一致性**：Facebook等通过API获取的数据仅允许修改部门归属
+4. **安全性**：FG信息作为系统集成关键字段，全平台禁止手动编辑
+
+#### 1.4 Facebook账户子模块
 - 管理及更新各Facebook BM下ad account的角色（Owner或client）
 - 字段：BM Name、BM ID、Ad account Name+ID、Role（Facebook API获取）、上次更新时间
 - 支持通过账户ID/名称/角色筛选和搜索
