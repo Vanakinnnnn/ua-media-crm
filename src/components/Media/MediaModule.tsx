@@ -326,6 +326,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
   const renderDefaultSettingsForm = (account: MediaAccount, platform: MediaPlatform) => {
     const isEditing = editingAccount === account.id;
     const isGoogleAds = platform.type === 'Google Ads';
+    const isTikTok = platform.type === 'TikTok';
     const isMain = !account.parentId;
     const mainAccount = isMain ? null : getMainAccount(account);
     
@@ -347,29 +348,19 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
         <div className="space-y-3 min-w-[200px]">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">MCC Type:</label>
-            {isEditing ? (
-              <select
-                value={settings.mccType || ''}
-                onChange={(e) => updateDefaultSettings('mccType', e.target.value)}
-                className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">选择类型</option>
-                <option value="主MCC">主MCC</option>
-                <option value="子MCC">子MCC</option>
-              </select>
-            ) : (
-              <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                settings.mccType === 'main' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-green-500 text-white'
-              }`}>
-                {highlightText(settings.mccType === 'main' ? '主MCC' : settings.mccType === 'sub' ? '子MCC' : '-', appliedSearchKeyword)}
-              </span>
-            )}
+            {/* 谷歌主MCC和子MCC都不能修改MCC Type */}
+            <span className={`px-2 py-1 text-xs font-bold rounded-full ${
+              settings.mccType === 'main' 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-green-500 text-white'
+            }`}>
+              {highlightText(settings.mccType === 'main' ? '主MCC' : settings.mccType === 'sub' ? '子MCC' : '-', appliedSearchKeyword)}
+            </span>
           </div>
           {/* 主MCC ID 不再显示给任何账户 */}
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Payment Profile ID:</label>
+            {/* 只有谷歌主MCC可以编辑Payment Profile ID */}
             {isEditing && isMain ? (
               <input
                 type="text"
@@ -390,6 +381,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
         <div className="space-y-3 min-w-[200px]">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Industry ID:</label>
+            {/* TikTok BC可以编辑所有账户配置信息 */}
             {isEditing ? (
               <input
                 type="text"
@@ -436,7 +428,9 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
         </div>
       );
     }
-    return <p className="text-sm text-gray-500">无特殊设置</p>;
+    
+    // Facebook及其他媒体：账户配置列为空
+    return <p className="text-sm text-gray-500">-</p>;
   };
 
   const renderDepartmentTags = (account: MediaAccount) => {
@@ -452,7 +446,14 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
       departments = isEditing ? editForm.departments || [] : account.departments;
     }
 
-    if (isEditing && !(isGoogleAds && isMain)) {
+    // 部门编辑权限：
+    // 1. 谷歌主MCC：不可编辑（由子账户决定）
+    // 2. 谷歌子MCC：可编辑
+    // 3. TikTok BC：可编辑
+    // 4. Facebook及其他媒体：可编辑
+    const canEditDepartments = isEditing && !(isGoogleAds && isMain);
+
+    if (canEditDepartments) {
       return (
         <div className="space-y-2 min-w-[120px]">
           <label className="block text-xs font-medium text-gray-500 mb-2">选择部门:</label>
@@ -511,30 +512,31 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
       ? mainAccount.fgInfo?.environment 
       : fgInfo.environment;
 
-    if (isEditing && (isMain || !isGoogleAds)) {
-      return (
-        <div className="space-y-3 min-w-[180px]">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">DH ID:</label>
-            <input
-              type="text"
-              value={fgInfo.dhId ?? ''}
-              onChange={(e) => updateFGInfo('dhId', e.target.value)}
-              className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Environment:</label>
-            <input
-              type="text"
-              value={fgInfo.environment ?? ''}
-              onChange={(e) => updateFGInfo('environment', e.target.value)}
-              className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-      );
-    }
+    // FG信息（DHID和ENV）全部不可编辑
+    // if (isEditing && (isMain || !isGoogleAds)) {
+    //   return (
+    //     <div className="space-y-3 min-w-[180px]">
+    //       <div>
+    //         <label className="block text-xs font-medium text-gray-500 mb-1">DH ID:</label>
+    //         <input
+    //           type="text"
+    //           value={fgInfo.dhId ?? ''}
+    //           onChange={(e) => updateFGInfo('dhId', e.target.value)}
+    //           className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    //         />
+    //       </div>
+    //       <div>
+    //         <label className="block text-xs font-medium text-gray-500 mb-1">Environment:</label>
+    //         <input
+    //           type="text"
+    //           value={fgInfo.environment ?? ''}
+    //           onChange={(e) => updateFGInfo('environment', e.target.value)}
+    //           className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    //         />
+    //       </div>
+    //     </div>
+    //   );
+    // }
 
     return (
       <div className="text-sm space-y-1">
@@ -684,7 +686,8 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                       </td>
                       <td className="px-4 py-4">
                         {/* 账户信息内容 */}
-                        {isEditing ? (
+                        {/* 账户信息编辑权限：只有谷歌子MCC可以编辑账户名称和ID，主MCC不可编辑 */}
+                        {isEditing && !isMain ? (
                           <div className="space-y-2">
                             <input
                               type="text"
@@ -722,7 +725,8 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                         {renderFGInfo(account)}
                       </td>
                       <td className="px-4 py-4">
-                        {isEditing ? (
+                        {/* 状态编辑权限：只有谷歌子MCC可以编辑状态，主MCC不可编辑 */}
+                        {isEditing && !isMain ? (
                           <select
                             value={editForm.status || ''}
                             onChange={(e) => updateEditForm('status', e.target.value)}
@@ -800,7 +804,8 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    {isEditing ? (
+                    {/* 其他平台账户信息：Facebook及其他媒体不可编辑账户信息，只有TikTok可以编辑 */}
+                    {isEditing && platform?.type === 'TikTok' ? (
                       <div className="space-y-2">
                         <input
                           type="text"
@@ -838,7 +843,8 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                     {renderFGInfo(account)}
                   </td>
                   <td className="px-4 py-4">
-                    {isEditing ? (
+                    {/* 其他平台状态编辑：只有TikTok可以编辑状态，Facebook及其他媒体不可编辑 */}
+                    {isEditing && platform?.type === 'TikTok' ? (
                       <select
                         value={editForm.status || ''}
                         onChange={(e) => updateEditForm('status', e.target.value)}
