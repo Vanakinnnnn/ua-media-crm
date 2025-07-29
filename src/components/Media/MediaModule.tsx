@@ -489,7 +489,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
       );
     }
     
-    // Facebook及其他媒体：账户配置列为空
+    // Facebook、Unity、AppLovin、Moloco等其他媒体：账户配置列为空
     return <p className="text-sm text-gray-500">-</p>;
   };
 
@@ -874,34 +874,15 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    {/* 其他平台账户信息：Facebook及其他媒体不可编辑账户信息，只有TikTok可以编辑 */}
-                    {isEditing && platform?.type === 'TikTok' ? (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          placeholder="Account Name"
-                          value={editForm.name || ''}
-                          onChange={(e) => updateEditForm('name', e.target.value)}
-                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Account ID"
-                          value={editForm.accountId || ''}
-                          onChange={(e) => updateEditForm('accountId', e.target.value)}
-                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
+                    {/* 其他平台账户信息：所有非Google平台账户信息均不可编辑 */}
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 truncate">
+                        {highlightText(account.name, appliedSearchKeyword)}
                       </div>
-                    ) : (
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 truncate">
-                          {highlightText(account.name, appliedSearchKeyword)}
-                        </div>
-                        <div className="text-sm text-gray-500 truncate">
-                          ID: {highlightText(account.accountId, appliedSearchKeyword)}
-                        </div>
+                      <div className="text-sm text-gray-500 truncate">
+                        ID: {highlightText(account.accountId, appliedSearchKeyword)}
                       </div>
-                    )}
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     {renderDepartmentTags(account)}
@@ -913,23 +894,12 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                     {renderFGInfo(account)}
                   </td>
                   <td className="px-4 py-4">
-                    {/* 其他平台状态编辑：只有TikTok可以编辑状态，Facebook及其他媒体不可编辑 */}
-                    {isEditing && platform?.type === 'TikTok' ? (
-                      <select
-                        value={editForm.status || ''}
-                        onChange={(e) => updateEditForm('status', e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="Active">Active</option>
-                        <option value="Closed">Closed</option>
-                      </select>
-                    ) : (
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {account.status}
-                      </span>
-                    )}
+                    {/* 其他平台状态编辑：所有非Google平台状态均不可编辑 */}
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {account.status}
+                    </span>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-500">
                     <div className="truncate">{account.lastUpdated}</div>

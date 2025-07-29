@@ -1,7 +1,7 @@
 export interface MediaPlatform {
   id: string;
   name: string;
-  type: 'TikTok' | 'Google Ads' | 'Unity' | 'Facebook' | 'Twitter';
+  type: 'TikTok' | 'Google Ads' | 'Unity' | 'Facebook' | 'Twitter' | 'Applovin' | 'Moloco';
   status: 'active' | 'inactive' | 'pending';
   createdAt: string;
   accounts: MediaAccount[];

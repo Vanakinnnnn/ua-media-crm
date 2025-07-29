@@ -25,6 +25,30 @@ export const mockMediaPlatforms: MediaPlatform[] = [
     status: 'active',
     createdAt: '2024-01-20',
     accounts: []
+  },
+  {
+    id: '4',
+    name: 'Facebook Business',
+    type: 'Facebook',
+    status: 'active',
+    createdAt: '2024-01-12',
+    accounts: []
+  },
+  {
+    id: '5',
+    name: 'AppLovin MAX',
+    type: 'Applovin',
+    status: 'active',
+    createdAt: '2024-01-18',
+    accounts: []
+  },
+  {
+    id: '6',
+    name: 'Moloco Cloud DSP',
+    type: 'Moloco',
+    status: 'active',
+    createdAt: '2024-01-22',
+    accounts: []
   }
 ];
 
@@ -189,6 +213,154 @@ export const mockMediaAccounts: MediaAccount[] = [
     createdAt: '2024-01-15',
     lastUpdated: '2024-01-25 10:20:00',
     optimizers: ['2', '3']
+  },
+  // Facebook账户示例
+  {
+    id: '11',
+    platformId: '4',
+    name: 'Facebook Business Manager',
+    accountId: 'FB-BM-789456123',
+    type: 'main',
+    status: 'Active',
+    company: 'Social Media Corp',
+    departments: ['010', '045'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345681',
+      environment: 'US'
+    },
+    createdAt: '2024-01-12',
+    lastUpdated: '2024-01-26 14:15:00',
+    optimizers: ['4', '5']
+  },
+  {
+    id: '12',
+    platformId: '4',
+    name: 'Facebook Gaming Ad Account',
+    accountId: 'FB-AD-456789123',
+    type: 'main',
+    status: 'Active',
+    company: 'Gaming Hub Ltd',
+    departments: ['055', '060'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345682',
+      environment: 'SG'
+    },
+    createdAt: '2024-01-14',
+    lastUpdated: '2024-01-26 16:30:00',
+    optimizers: ['6', '7']
+  },
+  // Unity账户示例
+  {
+    id: '13',
+    platformId: '3',
+    name: 'Unity Mobile Ads',
+    accountId: 'UN-MOBILE-001',
+    type: 'main',
+    status: 'Active',
+    company: 'Mobile Games Studio',
+    departments: ['055', '919'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345683',
+      environment: 'US'
+    },
+    createdAt: '2024-01-20',
+    lastUpdated: '2024-01-26 11:45:00',
+    optimizers: ['8', '9']
+  },
+  {
+    id: '14',
+    platformId: '3',
+    name: 'Unity Desktop Games',
+    accountId: 'UN-DESKTOP-002',
+    type: 'main',
+    status: 'Closed',
+    company: 'Desktop Games Inc',
+    departments: ['060'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345684',
+      environment: 'EU'
+    },
+    createdAt: '2024-01-21',
+    lastUpdated: '2024-01-26 09:20:00',
+    optimizers: ['10']
+  },
+  // AppLovin账户示例
+  {
+    id: '15',
+    platformId: '5',
+    name: 'AppLovin MAX Network',
+    accountId: 'AL-MAX-789012',
+    type: 'main',
+    status: 'Active',
+    company: 'Ad Network Solutions',
+    departments: ['045', '055'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345685',
+      environment: 'US'
+    },
+    createdAt: '2024-01-18',
+    lastUpdated: '2024-01-26 13:10:00',
+    optimizers: ['4', '8']
+  },
+  {
+    id: '16',
+    platformId: '5',
+    name: 'AppLovin Exchange',
+    accountId: 'AL-EXCHANGE-345',
+    type: 'main',
+    status: 'Active',
+    company: 'Exchange Platform Ltd',
+    departments: ['010'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345686',
+      environment: 'SG'
+    },
+    createdAt: '2024-01-19',
+    lastUpdated: '2024-01-26 15:40:00',
+    optimizers: ['5']
+  },
+  // Moloco账户示例
+  {
+    id: '17',
+    platformId: '6',
+    name: 'Moloco Cloud DSP',
+    accountId: 'MOL-DSP-567890',
+    type: 'main',
+    status: 'Active',
+    company: 'AI Advertising Tech',
+    departments: ['919'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345687',
+      environment: 'US'
+    },
+    createdAt: '2024-01-22',
+    lastUpdated: '2024-01-26 12:25:00',
+    optimizers: ['9', '10']
+  },
+  {
+    id: '18',
+    platformId: '6',
+    name: 'Moloco Retail Media',
+    accountId: 'MOL-RETAIL-123',
+    type: 'main',
+    status: 'Active',
+    company: 'Retail Solutions Co',
+    departments: ['045', '060'],
+    defaultSettings: {},
+    fgInfo: {
+      dhId: '12345688',
+      environment: 'SG'
+    },
+    createdAt: '2024-01-23',
+    lastUpdated: '2024-01-26 10:50:00',
+    optimizers: ['4', '6']
   }
 ];
 
