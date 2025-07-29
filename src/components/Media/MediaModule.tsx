@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Facebook, Check } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, Users } from 'lucide-react';
 import { MediaPlatform, MediaAccount, DefaultSettings, FGInfo } from '../../types';
 import { mockMediaPlatforms, mockMediaAccounts } from '../../data/mockData';
-import { FacebookAccountsModule } from './FacebookAccountsModule';
 
 interface MediaModuleProps {
   refreshSuccess?: boolean;
@@ -133,7 +132,19 @@ const MultiSelect: React.FC<MultiSelectProps> = ({ options, value, onChange, pla
 export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
   const [platforms] = useState<MediaPlatform[]>(mockMediaPlatforms);
   const [accounts, setAccounts] = useState<MediaAccount[]>(mockMediaAccounts);
-  const [activeTab, setActiveTab] = useState<'media' | 'facebook'>('media');
+  const [activeTab, setActiveTab] = useState<'media'>('media');
+  
+  // Google子MCC管理状态
+  const [addSubMccDialog, setAddSubMccDialog] = useState<{
+    isOpen: boolean;
+    parentAccount?: MediaAccount;
+  }>({ isOpen: false });
+  
+  const [subMccForm, setSubMccForm] = useState({
+    name: '',
+    accountId: '',
+    departments: [] as string[]
+  });
   const [expandedPlatforms, setExpandedPlatforms] = useState<Set<string>>(new Set());
   
   // 临时筛选器状态（用户输入但未应用）
@@ -302,6 +313,55 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
       ...prev,
       fgInfo: { ...(prev.fgInfo as Partial<FGInfo> ?? {}), [field]: value }
     }));
+  };
+
+  // Google子MCC管理相关函数
+  const handleAddSubMcc = (parentAccount: MediaAccount) => {
+    setAddSubMccDialog({ isOpen: true, parentAccount });
+    setSubMccForm({
+      name: '',
+      accountId: '',
+      departments: []
+    });
+  };
+
+  const handleSubMccSubmit = () => {
+    const { parentAccount } = addSubMccDialog;
+    if (!parentAccount || !subMccForm.name || !subMccForm.accountId || subMccForm.departments.length === 0) {
+      return;
+    }
+
+    const newSubMcc: MediaAccount = {
+      id: `sub-${Date.now()}`,
+      platformId: parentAccount.platformId,
+      name: subMccForm.name,
+      accountId: subMccForm.accountId,
+      type: 'sub',
+      parentId: parentAccount.id,
+      status: 'Active',
+      company: parentAccount.company,
+      departments: subMccForm.departments,
+      defaultSettings: {
+        mccType: 'sub',
+        paymentProfileId: parentAccount.defaultSettings?.paymentProfileId // 继承主账户
+      },
+      fgInfo: {
+        dhId: parentAccount.fgInfo?.dhId, // 继承主账户
+        environment: parentAccount.fgInfo?.environment // 继承主账户
+      },
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toLocaleString(),
+      optimizers: []
+    };
+
+    setAccounts(prev => [...prev, newSubMcc]);
+    setAddSubMccDialog({ isOpen: false });
+    setSubMccForm({ name: '', accountId: '', departments: [] });
+  };
+
+  const handleSubMccCancel = () => {
+    setAddSubMccDialog({ isOpen: false });
+    setSubMccForm({ name: '', accountId: '', departments: [] });
   };
 
   // 添加获取主账户的辅助函数
@@ -773,6 +833,16 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                             >
                               <Edit className="w-4 h-4" />
                             </button>
+                            {/* Google主MCC添加子MCC管理按钮 */}
+                            {isMain && (
+                              <button
+                                onClick={() => handleAddSubMcc(account)}
+                                className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
+                                title="管理子MCC"
+                              >
+                                <Users className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>
@@ -1020,47 +1090,101 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
       )}
       
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-          <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setActiveTab('media')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-                activeTab === 'media' 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Table className="w-4 h-4" />
-              <span>媒体信息</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('facebook')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-colors ${
-                activeTab === 'facebook' 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Facebook className="w-4 h-4" />
-              <span>Facebook 账户</span>
-            </button>
-          </div>
-        </div>
-        {activeTab === 'media' && (
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus className="w-4 h-4" />
-            <span>添加Google子MCC</span>
-          </button>
-        )}
+        <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
       </div>
 
-      {activeTab === 'facebook' ? (
-        <FacebookAccountsModule refreshSuccess={refreshSuccess} />
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {renderFilters()}
-          {renderTableView()}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        {renderFilters()}
+        {renderTableView()}
+      </div>
+
+      {/* Google子MCC管理对话框 */}
+      {addSubMccDialog.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">添加Google子MCC</h3>
+            
+            {/* 显示主MCC信息 */}
+            {addSubMccDialog.parentAccount && (
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                <h4 className="text-sm font-medium text-blue-900 mb-1">主MCC账户信息</h4>
+                <p className="text-sm text-blue-700">
+                  名称：{addSubMccDialog.parentAccount.name}
+                </p>
+                <p className="text-sm text-blue-700">
+                  ID：{addSubMccDialog.parentAccount.accountId}
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  子MCC名称 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={subMccForm.name}
+                  onChange={(e) => setSubMccForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="请输入子MCC名称"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  子MCC账户ID <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={subMccForm.accountId}
+                  onChange={(e) => setSubMccForm(prev => ({ ...prev, accountId: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="请输入子MCC账户ID"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  选择部门 <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {departmentOptions.map(dept => (
+                    <label key={dept} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={subMccForm.departments.includes(dept)}
+                        onChange={(e) => {
+                          const newDepts = e.target.checked 
+                            ? [...subMccForm.departments, dept]
+                            : subMccForm.departments.filter(d => d !== dept);
+                          setSubMccForm(prev => ({ ...prev, departments: newDepts }));
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm">{dept}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleSubMccCancel}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleSubMccSubmit}
+                disabled={!subMccForm.name || !subMccForm.accountId || subMccForm.departments.length === 0}
+                className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                确认提交
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
