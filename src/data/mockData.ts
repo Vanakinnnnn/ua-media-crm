@@ -378,8 +378,8 @@ export const mockOptimizers: Optimizer[] = [
     position: 'Senior Optimizer',
     status: 'active',
     mediaPermissions: [
-      { id: '1', platform: 'Google Ads', accountManager: 'Main Account Manager', accountName: 'Gaming Division', email: 'zhang.san.ads@gmail.com' },
-      { id: '2', platform: 'Facebook', accountManager: 'Business Manager', accountName: 'Facebook Business Manager', email: 'zhang.san.facebook@gmail.com', userId: 'FB_USER_12345' }
+      { id: '1', platform: 'Google Ads', accountManager: 'Gaming Division', email: 'zhang.san.ads@gmail.com' },
+      { id: '2', platform: 'Facebook', accountManager: 'Facebook Business Manager', email: 'zhang.san.facebook@gmail.com', facebookUserId: 'FB-USER-001' }
     ],
     createdAt: '2024-01-05',
     lastUpdated: '2024-01-25 14:30:00'
@@ -395,8 +395,8 @@ export const mockOptimizers: Optimizer[] = [
     position: 'Media Buyer',
     status: 'active',
     mediaPermissions: [
-      { id: '3', platform: 'Google Ads', accountManager: 'Campaign Manager', accountName: 'E-commerce Division', email: 'john.smith.ads@gmail.com' },
-      { id: '4', platform: 'TikTok', accountManager: 'Account Manager', accountName: 'TikTok Main Account', email: 'john.smith.tiktok@gmail.com' }
+      { id: '3', platform: 'Google Ads', accountManager: 'E-commerce Division', email: 'john.smith.ads@gmail.com' },
+      { id: '4', platform: 'TikTok', accountManager: 'TikTok Main Account', email: 'john.smith.tiktok@gmail.com' }
     ],
     createdAt: '2024-01-08',
     lastUpdated: '2024-01-24 16:45:00'
@@ -413,8 +413,8 @@ export const mockOptimizers: Optimizer[] = [
     position: 'Campaign Manager',
     status: 'active',
     mediaPermissions: [
-      { id: '5', platform: 'Facebook', accountManager: 'Business Manager', accountName: 'Facebook Gaming Ad Account', email: 'li.si.facebook@gmail.com', userId: 'FB_USER_67890' },
-      { id: '6', platform: 'TikTok', accountManager: 'Campaign Manager', accountName: 'TikTok Main Account', email: 'li.si.tiktok@gmail.com' }
+      { id: '5', platform: 'Facebook', email: 'li.si.facebook@gmail.com' },
+      { id: '6', platform: 'TikTok', email: 'li.si.tiktok@gmail.com' }
     ],
     createdAt: '2024-01-10',
     lastUpdated: '2024-01-25 12:15:00'
@@ -430,8 +430,8 @@ export const mockOptimizers: Optimizer[] = [
     position: 'Performance Specialist',
     status: 'active',
     mediaPermissions: [
-      { id: '7', platform: 'Google Ads', accountManager: 'Performance Manager', accountName: 'Mobile App Campaigns', email: 'emma.davis.ads@gmail.com' },
-      { id: '8', platform: 'Unity', accountManager: 'Ad Manager', accountName: 'Unity Mobile Ads', email: 'emma.davis.unity@gmail.com' }
+      { id: '7', platform: 'Google Ads', email: 'emma.davis.ads@gmail.com' },
+      { id: '8', platform: 'Unity', email: 'emma.davis.unity@gmail.com' }
     ],
     createdAt: '2024-01-12',
     lastUpdated: '2024-01-25 09:30:00'
@@ -443,13 +443,12 @@ export const mockOptimizers: Optimizer[] = [
     email: 'wang.wu@company.com',
     internalEmail: 'wang.wu@internal.com',
     trainingEmail: 'wang.wu.training@platform.com',
-    organizationDepartment: '055',
-    permissionDepartments: ['055', '060'],
+    department: '055',
     position: 'Senior Campaign Manager',
     status: 'active',
     mediaPermissions: [
-      { id: '9', platform: 'Google Ads', accountManager: 'Senior Manager', accountName: 'Web Campaigns', email: 'wang.wu.ads@gmail.com' },
-      { id: '10', platform: 'Facebook', accountManager: 'Business Manager', accountName: 'Facebook Business Manager', email: 'wang.wu.facebook@gmail.com', userId: 'FB_USER_11111' }
+      { id: '9', platform: 'Google Ads', email: 'wang.wu.ads@gmail.com' },
+      { id: '10', platform: 'Facebook', email: 'wang.wu.facebook@gmail.com' }
     ],
     createdAt: '2024-01-15',
     lastUpdated: '2024-01-25 11:20:00'
@@ -460,13 +459,12 @@ export const mockOptimizers: Optimizer[] = [
     email: 'michael.chen@company.com',
     internalEmail: 'michael.chen@internal.com',
     trainingEmail: 'michael.chen.training@platform.com',
-    organizationDepartment: '055',
-    permissionDepartments: ['055', '919'],
+    department: '055',
     position: 'Digital Marketing Specialist',
     status: 'active',
     mediaPermissions: [
-      { id: '11', platform: 'TikTok', accountManager: 'Campaign Manager', accountName: 'TikTok Main Account', email: 'michael.chen.tiktok@gmail.com' },
-      { id: '12', platform: 'Applovin', accountManager: 'Network Manager', accountName: 'AppLovin MAX Network', email: 'michael.chen.applovin@gmail.com' }
+      { id: '11', platform: 'TikTok', email: 'michael.chen.tiktok@gmail.com' },
+      { id: '12', platform: 'Applovin', email: 'michael.chen.applovin@gmail.com' }
     ],
     createdAt: '2024-01-18',
     lastUpdated: '2024-01-24 15:45:00'
@@ -478,13 +476,12 @@ export const mockOptimizers: Optimizer[] = [
     email: 'sarah.wilson@company.com',
     internalEmail: 'sarah.wilson@internal.com',
     trainingEmail: 'sarah.wilson.training@platform.com',
-    organizationDepartment: '060',
-    permissionDepartments: ['060'],
+    department: '060',
     position: 'Lead Optimizer',
     status: 'active',
     mediaPermissions: [
-      { id: '13', platform: 'Google Ads', accountManager: 'Lead Manager', accountName: 'Gaming Division', email: 'sarah.wilson.ads@gmail.com' },
-      { id: '14', platform: 'Facebook', accountManager: 'Business Manager', accountName: 'Facebook Gaming Ad Account', email: 'sarah.wilson.facebook@gmail.com', userId: 'FB_USER_22222' }
+      { id: '13', platform: 'Google Ads', email: 'sarah.wilson.ads@gmail.com' },
+      { id: '14', platform: 'Facebook', email: 'sarah.wilson.facebook@gmail.com' }
     ],
     createdAt: '2024-01-20',
     lastUpdated: '2024-01-25 13:10:00'
@@ -495,13 +492,12 @@ export const mockOptimizers: Optimizer[] = [
     email: 'alex.johnson@company.com',
     internalEmail: 'alex.johnson@internal.com',
     trainingEmail: 'alex.johnson.training@platform.com',
-    organizationDepartment: '060',
-    permissionDepartments: ['055', '060'],
+    department: '060',
     position: 'Media Analyst',
     status: 'active',
     mediaPermissions: [
-      { id: '15', platform: 'Unity', accountManager: 'Analytics Manager', accountName: 'Unity Mobile Ads', email: 'alex.johnson.unity@gmail.com' },
-      { id: '16', platform: 'Moloco', accountManager: 'DSP Manager', accountName: 'Moloco Cloud DSP', email: 'alex.johnson.moloco@gmail.com' }
+      { id: '15', platform: 'Unity', email: 'alex.johnson.unity@gmail.com' },
+      { id: '16', platform: 'Moloco', email: 'alex.johnson.moloco@gmail.com' }
     ],
     createdAt: '2024-01-22',
     lastUpdated: '2024-01-24 17:30:00'
@@ -513,13 +509,12 @@ export const mockOptimizers: Optimizer[] = [
     email: 'david.kim@company.com',
     internalEmail: 'david.kim@internal.com',
     trainingEmail: 'david.kim.training@platform.com',
-    organizationDepartment: '919',
-    permissionDepartments: ['919'],
+    department: '919',
     position: 'Growth Marketing Manager',
     status: 'active',
     mediaPermissions: [
-      { id: '17', platform: 'TikTok', accountManager: 'Growth Manager', accountName: 'TikTok Main Account', email: 'david.kim.tiktok@gmail.com' },
-      { id: '18', platform: 'Facebook', accountManager: 'Business Manager', accountName: 'Facebook Business Manager', email: 'david.kim.facebook@gmail.com', userId: 'FB_USER_33333' }
+      { id: '17', platform: 'TikTok', email: 'david.kim.tiktok@gmail.com' },
+      { id: '18', platform: 'Facebook', email: 'david.kim.facebook@gmail.com' }
     ],
     createdAt: '2024-01-25',
     lastUpdated: '2024-01-25 16:20:00'
@@ -535,8 +530,8 @@ export const mockOptimizers: Optimizer[] = [
     position: 'Performance Marketing Lead',
     status: 'closed',
     mediaPermissions: [
-      { id: '19', platform: 'TikTok', accountManager: 'Performance Manager', accountName: 'TikTok Main Account', email: 'lisa.zhang.tiktok@gmail.com' },
-      { id: '20', platform: 'Unity', accountManager: 'Performance Manager', accountName: 'Unity Desktop Games', email: 'lisa.zhang.unity@gmail.com' }
+      { id: '19', platform: 'TikTok', email: 'lisa.zhang.tiktok@gmail.com' },
+      { id: '20', platform: 'Unity', email: 'lisa.zhang.unity@gmail.com' }
     ],
     createdAt: '2024-01-10',
     lastUpdated: '2024-01-23 10:20:00'

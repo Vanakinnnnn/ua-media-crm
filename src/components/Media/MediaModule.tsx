@@ -598,16 +598,16 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
     //   );
     // }
 
-    return (
+      return (
       <div className="text-sm space-y-1">
-              <div>
+          <div>
           <span className="font-medium">DHID:</span> {highlightText(dhId ?? '', appliedSearchKeyword)}
-        </div>
-        <div>
+          </div>
+          <div>
           <span className="font-medium">ENV:</span> {highlightText(environment ?? '', appliedSearchKeyword)}
           </div>
-      </div>
-    );
+        </div>
+      );
   };
 
   // 2. 删除renderAccountTree和renderTreeView方法
@@ -727,9 +727,9 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                   const isMain = !account.parentId;
                   const isFirstInGroup = accountIndex === 0;
                   const isLastInGroup = accountIndex === group.length - 1;
-                  const isEditing = editingAccount === account.id;
-                  
-                  return (
+              const isEditing = editingAccount === account.id;
+              
+              return (
                     <tr 
                       key={account.id} 
                       className={`
@@ -739,69 +739,69 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                         ${isMain && !isLastInGroup ? 'border-b border-blue-200' : ''}
                       `}
                     >
-                      <td className="px-4 py-4">
-                        <div className="text-sm font-medium text-gray-900">
+                  <td className="px-4 py-4">
+                    <div className="text-sm font-medium text-gray-900">
                           {highlightText(googleAdsPlatform?.type || '-', appliedSearchKeyword)}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
                         {/* 账户信息内容 */}
                         {/* 账户信息编辑权限：只有谷歌子MCC可以编辑账户名称和ID，主MCC不可编辑 */}
                         {isEditing && !isMain ? (
-                          <div className="space-y-2">
-                            <input
-                              type="text"
-                              placeholder="Account Name"
-                              value={editForm.name || ''}
-                              onChange={(e) => updateEditForm('name', e.target.value)}
-                              className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                            <input
-                              type="text"
-                              placeholder="Account ID"
-                              value={editForm.accountId || ''}
-                              onChange={(e) => updateEditForm('accountId', e.target.value)}
-                              className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        ) : (
-                          <div>
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          placeholder="Account Name"
+                          value={editForm.name || ''}
+                          onChange={(e) => updateEditForm('name', e.target.value)}
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Account ID"
+                          value={editForm.accountId || ''}
+                          onChange={(e) => updateEditForm('accountId', e.target.value)}
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    ) : (
+                      <div>
                             <div className="text-sm font-medium text-gray-900 truncate">
                               {highlightText(account.name, appliedSearchKeyword)}
                             </div>
                             <div className="text-sm text-gray-500 truncate">
                               ID: {highlightText(account.accountId, appliedSearchKeyword)}
                             </div>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-4">
-                        {renderDepartmentTags(account)}
-                      </td>
-                      <td className="px-4 py-4">
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
+                    {renderDepartmentTags(account)}
+                  </td>
+                  <td className="px-4 py-4">
                         {googleAdsPlatform && renderDefaultSettingsForm(account, googleAdsPlatform)}
-                      </td>
-                      <td className="px-4 py-4">
-                        {renderFGInfo(account)}
-                      </td>
-                      <td className="px-4 py-4">
+                  </td>
+                  <td className="px-4 py-4">
+                    {renderFGInfo(account)}
+                  </td>
+                  <td className="px-4 py-4">
                         {/* 状态编辑权限：只有谷歌子MCC可以编辑状态，主MCC不可编辑 */}
                         {isEditing && !isMain ? (
-                          <select
-                            value={editForm.status || ''}
-                            onChange={(e) => updateEditForm('status', e.target.value)}
-                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="Active">Active</option>
-                            <option value="Closed">Closed</option>
-                          </select>
-                        ) : (
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {account.status}
-                          </span>
-                        )}
+                      <select
+                        value={editForm.status || ''}
+                        onChange={(e) => updateEditForm('status', e.target.value)}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="Active">Active</option>
+                        <option value="Closed">Closed</option>
+                      </select>
+                    ) : (
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {account.status}
+                      </span>
+                    )}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-500">
                         <div className="truncate">{account.lastUpdated}</div>
@@ -971,7 +971,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
             <option value="Closed">Closed</option>
           </select>
           <div className="text-xs text-gray-500 mt-1">状态</div>
-        </div>
+                  </div>
         
         {/* 媒体类型多选 */}
         <MultiSelect
@@ -1060,13 +1060,13 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
       )}
       
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
-      </div>
+          <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
+          </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {renderFilters()}
         {renderTableView()}
-      </div>
+        </div>
 
       {/* Google子MCC管理对话框 */}
       {addSubMccDialog.isOpen && (
@@ -1099,7 +1099,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="请输入子MCC名称"
                 />
-              </div>
+      </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1138,7 +1138,7 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
                 </div>
               </div>
             </div>
-
+            
             <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={handleSubMccCancel}

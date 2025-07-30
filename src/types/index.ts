@@ -49,8 +49,8 @@ export interface Optimizer {
   internalEmail: string;
   externalEmail?: string;
   trainingEmail: string;
-  organizationDepartment: '010' | '045' | '055' | '060' | '919'; // 组织部门（来源Fastgear，唯一）
-  permissionDepartments: ('010' | '045' | '055' | '060' | '919')[]; // 权限部门（来源Hamburger，可多个）
+  organizationDepartment: '010' | '045' | '055' | '060' | '919';
+  permissionDepartments: ('010' | '045' | '055' | '060' | '919')[];
   position: string;
   status: 'active' | 'closed';
   mediaPermissions: MediaPermission[];
@@ -62,9 +62,8 @@ export interface MediaPermission {
   id: string;
   platform: string;
   accountManager?: string; // 账户管家选项
-  accountName?: string; // 根据权限部门动态生成的账户名称
   email: string;
-  userId?: string; // Facebook专用用户ID字段
+  facebookUserId?: string; // Facebook用户ID
 }
 
 export interface Permission {

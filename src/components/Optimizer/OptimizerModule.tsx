@@ -1,55 +1,94 @@
 import React, { useState } from 'react';
-import { Search, Filter, Plus, X } from 'lucide-react';
-import { Optimizer, MediaPermission, MediaAccount } from '../../types';
-import { mockOptimizers, mockMediaAccounts } from '../../data/mockData';
+import { Search, Filter, Edit, Trash2, Check, X, Clock, Save } from 'lucide-react';
+import { Optimizer, MediaPermission } from '../../types';
+import { mockOptimizers } from '../../data/mockData';
 
 interface OptimizerModuleProps {
   refreshSuccess?: boolean;
 }
 
 export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess }) => {
-  const [optimizers] = useState<Optimizer[]>(mockOptimizers); // 优化师信息只读，来源Hamburger平台
-  const [accounts] = useState<MediaAccount[]>(mockMediaAccounts);
+  const [optimizers, setOptimizers] = useState<Optimizer[]>(mockOptimizers);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterOrganizationDepartment, setFilterOrganizationDepartment] = useState<string>('all');
-  const [filterPermissionDepartment, setFilterPermissionDepartment] = useState<string>('all');
+  const [filterDepartment, setFilterDepartment] = useState<string>('all');
+  const [editingOptimizer, setEditingOptimizer] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Optimizer>>({});
+  const [permissionForm, setPermissionForm] = useState<MediaPermission[]>([]);
 
   const departmentOptions = ['010', '045', '055', '060', '919'];
-  const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Applovin', 'Moloco'];
-  const accountManagerOptions = ['Main Account Manager', 'Campaign Manager', 'Performance Manager', 'Business Manager', 'Ad Manager', 'Network Manager', 'Analytics Manager', 'DSP Manager', 'Growth Manager', 'Lead Manager', 'Senior Manager'];
+  const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Twitter'];
 
 
-  // 根据优化师权限部门获取可用的账户列表（排除Google主MCC）
-  const getAvailableAccounts = (permissionDepartments: string[], platform: string): MediaAccount[] => {
-    return accounts.filter(account => {
-      // 排除Google主MCC账户
-      if (account.type === 'mcc' && account.defaultSettings?.mccType === 'main') {
-        return false;
-      }
-      // 账户的部门必须与优化师的权限部门有交集
-      return account.departments.some(dept => permissionDepartments.includes(dept));
-    }).filter(account => {
-      // 过滤匹配的平台
-      const accountPlatform = accounts.find(a => a.id === account.id);
-      // 这里需要通过platformId映射到平台类型，暂时简化处理
-      return true; // 实际实现中需要根据platformId匹配
-    });
+  const handleEdit = (optimizer: Optimizer) => {
+    setEditingOptimizer(optimizer.id);
+    setEditForm({ ...optimizer });
+    setPermissionForm([...optimizer.mediaPermissions]);
+  };
+
+  const handleSave = () => {
+    if (editingOptimizer && editForm) {
+      setOptimizers(prev => prev.map(optimizer => 
+        optimizer.id === editingOptimizer 
+          ? { ...optimizer, ...editForm, mediaPermissions: permissionForm, lastUpdated: new Date().toLocaleString() }
+          : optimizer
+      ));
+      setEditingOptimizer(null);
+      setEditForm({});
+      setPermissionForm([]);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingOptimizer(null);
+    setEditForm({});
+    setPermissionForm([]);
+  };
+
+  const updateEditForm = (field: string, value: any) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
+  };
+
+
+  const addPermission = () => {
+    const newPermission: MediaPermission = {
+      id: Date.now().toString(),
+      platform: '',
+      email: ''
+    };
+    setPermissionForm(prev => [...prev, newPermission]);
+  };
+
+  const updatePermission = (index: number, field: string, value: string) => {
+    setPermissionForm(prev => prev.map((perm, i) => 
+      i === index ? { ...perm, [field]: value } : perm
+    ));
+  };
+
+  const removePermission = (index: number) => {
+    setPermissionForm(prev => prev.filter((_, i) => i !== index));
   };
 
   const renderMediaPermissions = (optimizer: Optimizer) => {
     return (
-      <div className="space-y-2 min-w-[400px]">
+      <div className="space-y-2 min-w-[250px]">
         {optimizer.mediaPermissions.map((permission) => (
           <div key={permission.id} className="text-sm border border-gray-200 rounded p-2">
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div><span className="font-medium text-gray-600">媒体:</span> {permission.platform}</div>
-              <div><span className="font-medium text-gray-600">账户管家:</span> {permission.accountManager || '-'}</div>
-              <div><span className="font-medium text-gray-600">账户名称:</span> {permission.accountName || '-'}</div>
-              <div><span className="font-medium text-gray-600">邮箱:</span> <span className="text-blue-600">{permission.email}</span></div>
-              {permission.userId && (
-                <div className="col-span-2"><span className="font-medium text-gray-600">用户ID:</span> {permission.userId}</div>
-              )}
+            <div className="flex items-center space-x-2 mb-1">
+              <span className="font-medium text-blue-600">{permission.platform}</span>
             </div>
+            {permission.accountManager && (
+              <div className="text-xs text-gray-600">
+                <span className="font-medium">账户管家:</span> {permission.accountManager}
+              </div>
+            )}
+            <div className="text-xs text-gray-600">
+              <span className="font-medium">邮箱:</span> {permission.email}
+            </div>
+            {permission.facebookUserId && (
+              <div className="text-xs text-gray-600">
+                <span className="font-medium">用户ID:</span> {permission.facebookUserId}
+              </div>
+            )}
           </div>
         ))}
         {optimizer.mediaPermissions.length === 0 && (
@@ -79,9 +118,6 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
       
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">优化师管理</h2>
-        <div className="text-sm text-gray-600">
-          数据来源：Hamburger平台（只读）
-        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -99,21 +135,11 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
               />
             </div>
             <select
-              value={filterOrganizationDepartment}
-              onChange={(e) => setFilterOrganizationDepartment(e.target.value)}
+              value={filterDepartment}
+              onChange={(e) => setFilterDepartment(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">所有组织部门</option>
-              {departmentOptions.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-            <select
-              value={filterPermissionDepartment}
-              onChange={(e) => setFilterPermissionDepartment(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">所有权限部门</option>
+              <option value="all">所有部门</option>
               {departmentOptions.map(dept => (
                 <option key={dept} value={dept}>{dept}</option>
               ))}
@@ -138,7 +164,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                   <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     权限部门
                   </th>
-                  <th className="w-80 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     媒体权限
                   </th>
                   <th className="w-48 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -150,28 +176,17 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                   <th className="w-40 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     上次更新时间
                   </th>
+                  <th className="w-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    操作
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {optimizers
-                  .filter(optimizer => {
-                    // 按搜索词过滤
-                    const matchesSearch = !searchTerm || 
-                      optimizer.slackName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      optimizer.email.toLowerCase().includes(searchTerm.toLowerCase());
-                    
-                    // 按组织部门过滤
-                    const matchesOrgDept = filterOrganizationDepartment === 'all' || 
-                      optimizer.organizationDepartment === filterOrganizationDepartment;
-                    
-                    // 按权限部门过滤
-                    const matchesPermDept = filterPermissionDepartment === 'all' ||
-                      optimizer.permissionDepartments.includes(filterPermissionDepartment as '010' | '045' | '055' | '060' | '919');
-                    
-                    return matchesSearch && matchesOrgDept && matchesPermDept;
-                  })
-                  .map((optimizer) => (
-                    <tr key={optimizer.id} className="hover:bg-gray-50">
+                {optimizers.map((optimizer) => {
+                  const isEditing = editingOptimizer === optimizer.id;
+                  
+                  return (
+                    <tr key={optimizer.id} className={`${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'}`}>
                       <td className="px-6 py-4">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
@@ -210,9 +225,12 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                       <td className="px-6 py-4 text-sm text-gray-500">
                         <div className="truncate">{optimizer.lastUpdated}</div>
                       </td>
+                      <td className="px-6 py-4">
+                        <span className="text-gray-400 text-sm">只读</span>
+                      </td>
                     </tr>
-                  ))
-                }
+                  );
+                })}
               </tbody>
             </table>
         </div>
