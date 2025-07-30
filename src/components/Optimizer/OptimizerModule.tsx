@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Edit, Trash2, Check, X, Clock, Save } from 'lucide-react';
 import { Optimizer, MediaPermission } from '../../types';
-import { mockOptimizers } from '../../data/mockData';
+import { mockOptimizers, mockMediaAccounts, mockMediaPlatforms } from '../../data/mockData';
 
 interface OptimizerModuleProps {
   refreshSuccess?: boolean;
@@ -17,6 +17,36 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
 
   const departmentOptions = ['010', '045', '055', '060', '919'];
   const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Twitter'];
+
+  // 获取可用的账户管家选项
+  const getAvailableAccounts = (platform: string, optimizerPermissionDepartments: string[]) => {
+    // 根据平台找到对应的平台ID
+    const mediaPlat = mockMediaPlatforms.find(p => p.type === platform);
+    if (!mediaPlat) return [];
+
+    // 找到该平台下的所有账户，排除Google Ads的主MCC
+    const platformAccounts = mockMediaAccounts.filter(account => {
+      if (account.platformId !== mediaPlat.id) return false;
+      
+      // 如果是Google Ads，排除主MCC（mccType为'main'的账户）
+      if (platform === 'Google Ads' && account.defaultSettings?.mccType === 'main') {
+        return false;
+      }
+      
+      return true;
+    });
+
+    // 筛选出与优化师权限部门有交集的账户
+    const availableAccounts = platformAccounts.filter(account => {
+      const accountDepts = account.departments || [];
+      return optimizerPermissionDepartments.some(dept => accountDepts.includes(dept));
+    });
+
+    return availableAccounts.map(account => ({
+      value: account.name,
+      label: account.name
+    }));
+  };
 
 
   const handleEdit = (optimizer: Optimizer) => {
@@ -53,7 +83,9 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
     const newPermission: MediaPermission = {
       id: Date.now().toString(),
       platform: '',
-      email: ''
+      accountManager: '',
+      email: '',
+      facebookUserId: ''
     };
     setPermissionForm(prev => [...prev, newPermission]);
   };
@@ -69,6 +101,83 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
   };
 
   const renderMediaPermissions = (optimizer: Optimizer) => {
+    const isEditing = editingOptimizer === optimizer.id;
+    
+    if (isEditing) {
+      return (
+        <div className="space-y-3 min-w-[300px]">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-gray-900">编辑媒体权限</h4>
+            <button
+              onClick={addPermission}
+              className="text-blue-600 hover:text-blue-800 text-sm"
+            >
+              + 添加权限
+            </button>
+          </div>
+          {permissionForm.map((permission, index) => {
+            const currentOptimizer = optimizers.find(opt => opt.id === editingOptimizer);
+            const availableAccounts = currentOptimizer ? getAvailableAccounts(permission.platform, currentOptimizer.permissionDepartments) : [];
+            
+            return (
+              <div key={permission.id} className="space-y-2 p-2 border border-gray-200 rounded">
+                <select
+                  value={permission.platform}
+                  onChange={(e) => {
+                    updatePermission(index, 'platform', e.target.value);
+                    // 清空账户管家选择，因为平台变了
+                    updatePermission(index, 'accountManager', '');
+                  }}
+                  className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">选择平台</option>
+                  {platformOptions.map(platform => (
+                    <option key={platform} value={platform}>{platform}</option>
+                  ))}
+                </select>
+                
+                {permission.platform && (
+                  <select
+                    value={permission.accountManager || ''}
+                    onChange={(e) => updatePermission(index, 'accountManager', e.target.value)}
+                    className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">选择账户管家</option>
+                    {availableAccounts.map(account => (
+                      <option key={account.value} value={account.value}>{account.label}</option>
+                    ))}
+                  </select>
+                )}
+                
+                <input
+                  type="email"
+                  placeholder="邮箱地址"
+                  value={permission.email}
+                  onChange={(e) => updatePermission(index, 'email', e.target.value)}
+                  className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {permission.platform === 'Facebook' && (
+                  <input
+                    type="text"
+                    placeholder="用户ID"
+                    value={permission.facebookUserId || ''}
+                    onChange={(e) => updatePermission(index, 'facebookUserId', e.target.value)}
+                    className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                )}
+                <button
+                  onClick={() => removePermission(index)}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-2 min-w-[250px]">
         {optimizer.mediaPermissions.map((permission) => (
@@ -213,20 +322,68 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                         {renderMediaPermissions(optimizer)}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">{optimizer.trainingEmail}</div>
+                        {isEditing ? (
+                          <input
+                            type="email"
+                            placeholder="培训平台邮箱"
+                            value={editForm.trainingEmail || ''}
+                            onChange={(e) => updateEditForm('trainingEmail', e.target.value)}
+                            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                        ) : (
+                          <div className="text-sm text-gray-900">{optimizer.trainingEmail}</div>
+                        )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          optimizer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {optimizer.status === 'active' ? 'Active' : 'Closed'}
-                        </span>
+                        {isEditing ? (
+                          <select
+                            value={editForm.status || ''}
+                            onChange={(e) => updateEditForm('status', e.target.value)}
+                            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="active">Active</option>
+                            <option value="closed">Closed</option>
+                          </select>
+                        ) : (
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            optimizer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {optimizer.status === 'active' ? 'Active' : 'Closed'}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         <div className="truncate">{optimizer.lastUpdated}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-gray-400 text-sm">只读</span>
+                        {isEditing ? (
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={handleSave}
+                              className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
+                              title="保存"
+                            >
+                              <Save className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={handleCancel}
+                              className="p-1 text-red-600 hover:text-red-900 hover:bg-red-100 rounded"
+                              title="取消"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => handleEdit(optimizer)}
+                              className="p-1 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded"
+                              title="编辑权限信息"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
