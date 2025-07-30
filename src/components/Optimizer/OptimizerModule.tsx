@@ -1,125 +1,55 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, Edit, Trash2, Upload, Check, X, Clock, Save } from 'lucide-react';
-import { Optimizer, MediaPermission } from '../../types';
-import { mockOptimizers } from '../../data/mockData';
+import { Search, Filter, Plus, X } from 'lucide-react';
+import { Optimizer, MediaPermission, MediaAccount } from '../../types';
+import { mockOptimizers, mockMediaAccounts } from '../../data/mockData';
 
 interface OptimizerModuleProps {
   refreshSuccess?: boolean;
 }
 
 export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess }) => {
-  const [optimizers, setOptimizers] = useState<Optimizer[]>(mockOptimizers);
+  const [optimizers] = useState<Optimizer[]>(mockOptimizers); // 优化师信息只读，来源Hamburger平台
+  const [accounts] = useState<MediaAccount[]>(mockMediaAccounts);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDepartment, setFilterDepartment] = useState<string>('all');
-  const [editingOptimizer, setEditingOptimizer] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<Partial<Optimizer>>({});
-  const [permissionForm, setPermissionForm] = useState<MediaPermission[]>([]);
+  const [filterOrganizationDepartment, setFilterOrganizationDepartment] = useState<string>('all');
+  const [filterPermissionDepartment, setFilterPermissionDepartment] = useState<string>('all');
 
   const departmentOptions = ['010', '045', '055', '060', '919'];
-  const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Twitter'];
+  const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Applovin', 'Moloco'];
+  const accountManagerOptions = ['Main Account Manager', 'Campaign Manager', 'Performance Manager', 'Business Manager', 'Ad Manager', 'Network Manager', 'Analytics Manager', 'DSP Manager', 'Growth Manager', 'Lead Manager', 'Senior Manager'];
 
 
-  const handleEdit = (optimizer: Optimizer) => {
-    setEditingOptimizer(optimizer.id);
-    setEditForm({ ...optimizer });
-    setPermissionForm([...optimizer.mediaPermissions]);
-  };
-
-  const handleSave = () => {
-    if (editingOptimizer && editForm) {
-      setOptimizers(prev => prev.map(optimizer => 
-        optimizer.id === editingOptimizer 
-          ? { ...optimizer, ...editForm, mediaPermissions: permissionForm, lastUpdated: new Date().toLocaleString() }
-          : optimizer
-      ));
-      setEditingOptimizer(null);
-      setEditForm({});
-      setPermissionForm([]);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditingOptimizer(null);
-    setEditForm({});
-    setPermissionForm([]);
-  };
-
-  const updateEditForm = (field: string, value: any) => {
-    setEditForm(prev => ({ ...prev, [field]: value }));
-  };
-
-
-  const addPermission = () => {
-    const newPermission: MediaPermission = {
-      id: Date.now().toString(),
-      platform: '',
-      email: ''
-    };
-    setPermissionForm(prev => [...prev, newPermission]);
-  };
-
-  const updatePermission = (index: number, field: string, value: string) => {
-    setPermissionForm(prev => prev.map((perm, i) => 
-      i === index ? { ...perm, [field]: value } : perm
-    ));
-  };
-
-  const removePermission = (index: number) => {
-    setPermissionForm(prev => prev.filter((_, i) => i !== index));
+  // 根据优化师权限部门获取可用的账户列表（排除Google主MCC）
+  const getAvailableAccounts = (permissionDepartments: string[], platform: string): MediaAccount[] => {
+    return accounts.filter(account => {
+      // 排除Google主MCC账户
+      if (account.type === 'mcc' && account.defaultSettings?.mccType === 'main') {
+        return false;
+      }
+      // 账户的部门必须与优化师的权限部门有交集
+      return account.departments.some(dept => permissionDepartments.includes(dept));
+    }).filter(account => {
+      // 过滤匹配的平台
+      const accountPlatform = accounts.find(a => a.id === account.id);
+      // 这里需要通过platformId映射到平台类型，暂时简化处理
+      return true; // 实际实现中需要根据platformId匹配
+    });
   };
 
   const renderMediaPermissions = (optimizer: Optimizer) => {
-    const isEditing = editingOptimizer === optimizer.id;
-    
-    if (isEditing) {
-      return (
-        <div className="space-y-3 min-w-[300px]">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-900">编辑媒体权限</h4>
-            <button
-              onClick={addPermission}
-              className="text-blue-600 hover:text-blue-800 text-sm"
-            >
-              + 添加权限
-            </button>
-          </div>
-          {permissionForm.map((permission, index) => (
-            <div key={permission.id} className="flex items-center space-x-2 p-2 border border-gray-200 rounded">
-              <select
-                value={permission.platform}
-                onChange={(e) => updatePermission(index, 'platform', e.target.value)}
-                className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">选择平台</option>
-                {platformOptions.map(platform => (
-                  <option key={platform} value={platform}>{platform}</option>
-                ))}
-              </select>
-              <input
-                type="email"
-                placeholder="邮箱地址"
-                value={permission.email}
-                onChange={(e) => updatePermission(index, 'email', e.target.value)}
-                className="flex-1 text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                onClick={() => removePermission(index)}
-                className="text-red-600 hover:text-red-800"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
     return (
-      <div className="space-y-1 min-w-[200px]">
+      <div className="space-y-2 min-w-[400px]">
         {optimizer.mediaPermissions.map((permission) => (
-          <div key={permission.id} className="text-sm">
-            <span className="font-medium">{permission.platform}:</span>{' '}
-            <span className="text-blue-600">{permission.email}</span>
+          <div key={permission.id} className="text-sm border border-gray-200 rounded p-2">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div><span className="font-medium text-gray-600">媒体:</span> {permission.platform}</div>
+              <div><span className="font-medium text-gray-600">账户管家:</span> {permission.accountManager || '-'}</div>
+              <div><span className="font-medium text-gray-600">账户名称:</span> {permission.accountName || '-'}</div>
+              <div><span className="font-medium text-gray-600">邮箱:</span> <span className="text-blue-600">{permission.email}</span></div>
+              {permission.userId && (
+                <div className="col-span-2"><span className="font-medium text-gray-600">用户ID:</span> {permission.userId}</div>
+              )}
+            </div>
           </div>
         ))}
         {optimizer.mediaPermissions.length === 0 && (
@@ -149,15 +79,8 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
       
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">优化师管理</h2>
-        <div className="flex items-center space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
-            <Upload className="w-4 h-4" />
-            <span>批量导入</span>
-          </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus className="w-4 h-4" />
-            <span>添加优化师</span>
-          </button>
+        <div className="text-sm text-gray-600">
+          数据来源：Hamburger平台（只读）
         </div>
       </div>
 
@@ -176,11 +99,21 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
               />
             </div>
             <select
-              value={filterDepartment}
-              onChange={(e) => setFilterDepartment(e.target.value)}
+              value={filterOrganizationDepartment}
+              onChange={(e) => setFilterOrganizationDepartment(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">所有部门</option>
+              <option value="all">所有组织部门</option>
+              {departmentOptions.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
+            <select
+              value={filterPermissionDepartment}
+              onChange={(e) => setFilterPermissionDepartment(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">所有权限部门</option>
               {departmentOptions.map(dept => (
                 <option key={dept} value={dept}>{dept}</option>
               ))}
@@ -200,9 +133,12 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                     优化师信息
                   </th>
                   <th className="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    部门
+                    组织部门
                   </th>
-                  <th className="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    权限部门
+                  </th>
+                  <th className="w-80 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     媒体权限
                   </th>
                   <th className="w-48 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -214,132 +150,69 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                   <th className="w-40 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     上次更新时间
                   </th>
-                  <th className="w-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    操作
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {optimizers.map((optimizer) => {
-                  const isEditing = editingOptimizer === optimizer.id;
-                  
-                  return (
-                    <tr key={optimizer.id} className={`${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'}`}>
+                {optimizers
+                  .filter(optimizer => {
+                    // 按搜索词过滤
+                    const matchesSearch = !searchTerm || 
+                      optimizer.slackName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      optimizer.email.toLowerCase().includes(searchTerm.toLowerCase());
+                    
+                    // 按组织部门过滤
+                    const matchesOrgDept = filterOrganizationDepartment === 'all' || 
+                      optimizer.organizationDepartment === filterOrganizationDepartment;
+                    
+                    // 按权限部门过滤
+                    const matchesPermDept = filterPermissionDepartment === 'all' ||
+                      optimizer.permissionDepartments.includes(filterPermissionDepartment as '010' | '045' | '055' | '060' | '919');
+                    
+                    return matchesSearch && matchesOrgDept && matchesPermDept;
+                  })
+                  .map((optimizer) => (
+                    <tr key={optimizer.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        {isEditing ? (
-                          <div className="space-y-2">
-                            <input
-                              type="text"
-                              placeholder="Slack Name"
-                              value={editForm.slackName || ''}
-                              onChange={(e) => updateEditForm('slackName', e.target.value)}
-                              className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                            <input
-                              type="email"
-                              placeholder="邮箱"
-                              value={editForm.email || ''}
-                              onChange={(e) => updateEditForm('email', e.target.value)}
-                              className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                           <span className="text-blue-600">{optimizer.slackName}</span>
                           </div>
-                        ) : (
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                             <span className="text-blue-600">{optimizer.slackName}</span>
-                            </div>
-                            <div className="text-sm text-gray-500">{optimizer.email}</div>
-                          </div>
-                        )}
+                          <div className="text-sm text-gray-500">{optimizer.email}</div>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
-                        {isEditing ? (
-                          <select
-                            value={editForm.department || ''}
-                            onChange={(e) => updateEditForm('department', e.target.value)}
-                            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="">选择部门</option>
-                            {departmentOptions.map(dept => (
-                              <option key={dept} value={dept}>{dept}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                            {optimizer.department}
-                          </span>
-                        )}
+                        <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                          {optimizer.organizationDepartment}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {optimizer.permissionDepartments.map(dept => (
+                            <span key={dept} className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                              {dept}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         {renderMediaPermissions(optimizer)}
                       </td>
                       <td className="px-6 py-4">
-                        {isEditing ? (
-                          <input
-                            type="email"
-                            placeholder="培训平台邮箱"
-                            value={editForm.trainingEmail || ''}
-                            onChange={(e) => updateEditForm('trainingEmail', e.target.value)}
-                            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        ) : (
-                          <div className="text-sm text-gray-900">{optimizer.trainingEmail}</div>
-                        )}
+                        <div className="text-sm text-gray-900">{optimizer.trainingEmail}</div>
                       </td>
                       <td className="px-6 py-4">
-                        {isEditing ? (
-                          <select
-                            value={editForm.status || ''}
-                            onChange={(e) => updateEditForm('status', e.target.value)}
-                            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="active">Active</option>
-                            <option value="closed">Closed</option>
-                          </select>
-                        ) : (
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            optimizer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {optimizer.status === 'active' ? 'Active' : 'Closed'}
-                          </span>
-                        )}
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          optimizer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {optimizer.status === 'active' ? 'Active' : 'Closed'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         <div className="truncate">{optimizer.lastUpdated}</div>
                       </td>
-                      <td className="px-6 py-4">
-                        {isEditing ? (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={handleSave}
-                              className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
-                              title="编辑"
-                            >
-                              <Save className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={handleCancel}
-                              className="p-1 text-red-600 hover:text-red-900 hover:bg-red-100 rounded"
-                              title="取消"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => handleEdit(optimizer)}
-                              className="p-1 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded"
-                              title="编辑基本信息"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </td>
                     </tr>
-                  );
-                })}
+                  ))
+                }
               </tbody>
             </table>
         </div>
