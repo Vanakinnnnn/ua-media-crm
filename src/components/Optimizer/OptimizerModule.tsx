@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Search, Filter, Edit, Trash2, Check, X, Clock, Save } from 'lucide-react';
+import { Search, Filter, Edit, Trash2, Check, X, Clock, Save, ChevronDown, ChevronRight } from 'lucide-react';
 import { Optimizer, MediaPermission } from '../../types';
 import { mockOptimizers, mockMediaAccounts, mockMediaPlatforms } from '../../data/mockData';
+import { PlatformLogo } from '../Common/PlatformLogo';
 
 interface OptimizerModuleProps {
   refreshSuccess?: boolean;
@@ -14,6 +15,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
   const [editingOptimizer, setEditingOptimizer] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Optimizer>>({});
   const [permissionForm, setPermissionForm] = useState<MediaPermission[]>([]);
+  const [expandedPermissions, setExpandedPermissions] = useState<Set<string>>(new Set());
 
   const departmentOptions = ['010', '045', '055', '060', '919'];
   const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Twitter'];
@@ -100,6 +102,301 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
     setPermissionForm(prev => prev.filter((_, i) => i !== index));
   };
 
+  // 切换权限展开/折叠状态
+  const togglePermissionExpansion = (optimizerId: string) => {
+    setExpandedPermissions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(optimizerId)) {
+        newSet.delete(optimizerId);
+      } else {
+        newSet.add(optimizerId);
+      }
+      return newSet;
+    });
+  };
+
+
+
+  // 方案1: 紧凑标签式布局
+  const renderMediaPermissions_Layout1 = (optimizer: Optimizer) => {
+    return (
+      <div className="space-y-1 min-w-[280px]">
+        {optimizer.mediaPermissions.map((permission) => (
+          <div key={permission.id} className="flex items-center space-x-2 py-1">
+            <span className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 min-w-[80px] text-center">
+              {permission.platform}
+            </span>
+            {permission.accountManager && (
+              <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-700 truncate max-w-[120px]" title={permission.accountManager}>
+                {permission.accountManager}
+              </span>
+            )}
+            <span className="text-xs text-gray-500 truncate" title={permission.email}>
+              📧 {permission.email.split('@')[0]}
+            </span>
+            {permission.facebookUserId && (
+              <span className="px-1 py-0.5 text-xs rounded bg-yellow-100 text-yellow-700">
+                ID: {permission.facebookUserId.slice(-4)}
+              </span>
+            )}
+          </div>
+        ))}
+        {optimizer.mediaPermissions.length === 0 && (
+          <span className="text-sm text-gray-500">暂无权限</span>
+        )}
+      </div>
+    );
+  };
+
+  // 方案2: 表格式分列布局
+  const renderMediaPermissions_Layout2 = (optimizer: Optimizer) => {
+    return (
+      <div className="min-w-[320px]">
+        {optimizer.mediaPermissions.length > 0 ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-3 gap-2 text-xs font-medium text-gray-500 border-b pb-1">
+              <div>平台</div>
+              <div>账户</div>
+              <div>联系</div>
+            </div>
+            {optimizer.mediaPermissions.map((permission) => (
+              <div key={permission.id} className="grid grid-cols-3 gap-2 text-sm py-1">
+                <div className="flex items-center">
+                  <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                    {permission.platform}
+                  </span>
+                </div>
+                <div className="truncate" title={permission.accountManager}>
+                  {permission.accountManager || '-'}
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs text-gray-600 truncate" title={permission.email}>
+                    {permission.email}
+                  </div>
+                  {permission.facebookUserId && (
+                    <div className="text-xs text-yellow-600">
+                      ID: {permission.facebookUserId}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm text-gray-500">暂无权限</span>
+        )}
+      </div>
+    );
+  };
+
+  // 方案3: 卡片堆叠式布局  
+  const renderMediaPermissions_Layout3 = (optimizer: Optimizer) => {
+    return (
+      <div className="space-y-2 min-w-[260px]">
+        {optimizer.mediaPermissions.map((permission) => (
+          <div key={permission.id} className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-400">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-blue-600 text-sm">{permission.platform}</span>
+              {permission.facebookUserId && (
+                <span className="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
+                  {permission.facebookUserId}
+                </span>
+              )}
+            </div>
+            {permission.accountManager && (
+              <div className="text-sm font-medium text-gray-700 mb-1">
+                {permission.accountManager}
+              </div>
+            )}
+            <div className="text-xs text-gray-500">
+              {permission.email}
+            </div>
+          </div>
+        ))}
+        {optimizer.mediaPermissions.length === 0 && (
+          <div className="text-center py-4 text-gray-500 text-sm bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            暂无媒体权限
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // 方案4: 图标式单行布局
+  const renderMediaPermissions_Layout4 = (optimizer: Optimizer) => {
+    return (
+      <div className="space-y-2 min-w-[300px]">
+        {optimizer.mediaPermissions.map((permission) => (
+          <div key={permission.id} className="flex items-center space-x-3 p-2 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow">
+            <div className="flex items-center space-x-2 min-w-[100px]">
+              <PlatformLogo platform={permission.platform} size="md" />
+              <span className="text-sm font-medium text-gray-700">{permission.platform}</span>
+            </div>
+            <div className="w-px h-6 bg-gray-200"></div>
+            <div className="flex-1 min-w-0">
+              {permission.accountManager && (
+                <div className="text-sm font-medium text-gray-800 truncate">
+                  {permission.accountManager}
+                </div>
+              )}
+              <div className="text-xs text-gray-500 truncate" title={permission.email}>
+                {permission.email}
+              </div>
+              {permission.facebookUserId && (
+                <div className="text-xs text-yellow-600">
+                  User ID: {permission.facebookUserId}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {optimizer.mediaPermissions.length === 0 && (
+          <div className="text-center py-3 text-gray-500 text-sm">
+            <span className="text-2xl mb-2 block">📭</span>
+            暂无媒体权限
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // 方案5: 极简列表式布局
+  const renderMediaPermissions_Layout5 = (optimizer: Optimizer) => {
+    return (
+      <div className="min-w-[280px]">
+        {optimizer.mediaPermissions.length > 0 ? (
+          <div className="space-y-1">
+            {optimizer.mediaPermissions.map((permission, index) => (
+              <div key={permission.id} className="flex items-center text-sm py-1">
+                <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-2">
+                  {index + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium text-gray-800">{permission.platform}</span>
+                  {permission.accountManager && (
+                    <span className="text-gray-500"> → {permission.accountManager}</span>
+                  )}
+                  <div className="text-xs text-gray-400 truncate">
+                    {permission.email}
+                    {permission.facebookUserId && (
+                      <span className="ml-2 text-yellow-600">({permission.facebookUserId})</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-gray-500 italic">暂无权限</div>
+        )}
+      </div>
+    );
+  };
+
+  // 方案6: 折叠式布局
+  const renderMediaPermissions_Layout6 = (optimizer: Optimizer) => {
+    const isExpanded = expandedPermissions.has(optimizer.id);
+    const permissionCount = optimizer.mediaPermissions.length;
+
+    // 按平台分组权限
+    const groupedPermissions = optimizer.mediaPermissions.reduce((acc, permission) => {
+      if (!acc[permission.platform]) {
+        acc[permission.platform] = [];
+      }
+      acc[permission.platform].push(permission);
+      return acc;
+    }, {} as Record<string, MediaPermission[]>);
+
+    // 获取唯一平台列表用于预览
+    const uniquePlatforms = Array.from(new Set(optimizer.mediaPermissions.map(p => p.platform)));
+
+    return (
+      <div className="min-w-[280px]">
+        {/* 折叠头部 */}
+        <div 
+          className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+          onClick={() => togglePermissionExpansion(optimizer.id)}
+        >
+          <div className="flex items-center space-x-2">
+            {isExpanded ? (
+              <ChevronDown className="w-4 h-4 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-gray-500" />
+            )}
+            <span className="text-sm font-medium text-gray-700">
+              媒体权限 ({permissionCount})
+            </span>
+          </div>
+          
+          {/* 折叠状态下的平台Logo预览 */}
+          {!isExpanded && permissionCount > 0 && (
+            <div className="flex items-center space-x-2">
+              {uniquePlatforms.slice(0, 4).map((platform) => (
+                <PlatformLogo 
+                  key={platform} 
+                  platform={platform}
+                  size="sm"
+                  className="opacity-80 hover:opacity-100 transition-opacity"
+                />
+              ))}
+              {uniquePlatforms.length > 4 && (
+                <span className="text-xs text-gray-500 ml-1">+{uniquePlatforms.length - 4}</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 展开的详细内容 */}
+        {isExpanded && (
+          <div className="mt-2 space-y-2 pl-4 border-l-2 border-blue-200">
+            {permissionCount > 0 ? (
+              Object.entries(groupedPermissions).map(([platform, permissions]) => (
+                <div key={platform} className="bg-white p-3 rounded border border-gray-200 shadow-sm">
+                  {/* 平台头部 */}
+                  <div className="flex items-center space-x-3 mb-3 pb-2 border-b border-gray-100">
+                    <PlatformLogo platform={platform} size="md" />
+                    <span className="font-medium text-gray-800">{platform}</span>
+                    <span className="text-xs text-gray-500">({permissions.length}个账户)</span>
+                  </div>
+                  
+                  {/* 权限账户列表 */}
+                  <div className="space-y-3">
+                    {permissions.map((permission, index) => (
+                      <div key={permission.id} className={`${index > 0 ? 'pt-3 border-t border-gray-100' : ''}`}>
+                        <div className="grid grid-cols-1 gap-2 text-sm">
+                          {permission.accountManager && (
+                            <div className="text-gray-700">
+                              <span className="font-medium text-gray-500">账户管家:</span> {permission.accountManager}
+                            </div>
+                          )}
+                          
+                          <div className="text-gray-700">
+                            <span className="font-medium text-gray-500">媒体邮箱:</span> {permission.email}
+                          </div>
+                          
+                          {permission.facebookUserId && (
+                            <div className="text-gray-700">
+                              <span className="font-medium text-gray-500">用户ID:</span> 
+                              <span className="ml-1 px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
+                                {permission.facebookUserId}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-sm text-gray-500 italic py-2">暂无媒体权限</div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderMediaPermissions = (optimizer: Optimizer) => {
     const isEditing = editingOptimizer === optimizer.id;
     
@@ -125,7 +422,6 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                   value={permission.platform}
                   onChange={(e) => {
                     updatePermission(index, 'platform', e.target.value);
-                    // 清空账户管家选择，因为平台变了
                     updatePermission(index, 'accountManager', '');
                   }}
                   className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -178,33 +474,9 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
       );
     }
 
-    return (
-      <div className="space-y-2 min-w-[250px]">
-        {optimizer.mediaPermissions.map((permission) => (
-          <div key={permission.id} className="text-sm border border-gray-200 rounded p-2">
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="font-medium text-blue-600">{permission.platform}</span>
-            </div>
-            {permission.accountManager && (
-              <div className="text-xs text-gray-600">
-                <span className="font-medium">账户管家:</span> {permission.accountManager}
-              </div>
-            )}
-            <div className="text-xs text-gray-600">
-              <span className="font-medium">邮箱:</span> {permission.email}
-            </div>
-            {permission.facebookUserId && (
-              <div className="text-xs text-gray-600">
-                <span className="font-medium">用户ID:</span> {permission.facebookUserId}
-              </div>
-            )}
-          </div>
-        ))}
-        {optimizer.mediaPermissions.length === 0 && (
-          <span className="text-sm text-gray-500">暂无权限</span>
-        )}
-      </div>
-    );
+    // 您可以在这里选择使用哪种布局方案
+    // 当前使用方案6: 折叠式布局
+    return renderMediaPermissions_Layout6(optimizer);
   };
 
   return (
