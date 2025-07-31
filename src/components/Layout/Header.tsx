@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Bell, Search, User, RefreshCw } from 'lucide-react';
+import { RefreshRequestDialog } from '../Common/RefreshRequestDialog';
 
 interface HeaderProps {
   onRefresh: () => void;
@@ -7,9 +8,42 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onRefresh, isRefreshing }) => {
+  const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
+  const [refreshSuccess, setRefreshSuccess] = useState(false);
+
+  const handleRefreshRequest = (type: string, target: string) => {
+    console.log('刷新申请提交:', { type, target });
+    // 这里可以调用API或触发其他处理逻辑
+    onRefresh();
+    setRefreshSuccess(true);
+    
+    // 3秒后自动隐藏成功提示
+    setTimeout(() => {
+      setRefreshSuccess(false);
+    }, 3000);
+  };
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <>
+      {/* 成功提示 */}
+      {refreshSuccess && (
+        <div className="bg-green-50 border border-green-200 p-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="font-medium text-green-800">提交成功</h4>
+              <p className="text-sm text-green-700">刷新请求已成功提交，系统正在处理中。请前往「操作日志」页面查看处理进度</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">
           UA媒体账户管家与优化师信息维护 
           <span className="ml-2 text-sm bg-green-100 text-green-600 px-2 py-1 rounded">v1.0</span>
@@ -27,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isRefreshing }) => {
         
         <div className="flex items-center space-x-4">
           <button
-            onClick={onRefresh}
+            onClick={() => setIsRefreshDialogOpen(true)}
             disabled={isRefreshing}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
@@ -46,6 +80,14 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isRefreshing }) => {
           </button>
         </div>
       </div>
-    </header>
+
+      {/* 刷新申请弹窗 */}
+      <RefreshRequestDialog
+        isOpen={isRefreshDialogOpen}
+        onClose={() => setIsRefreshDialogOpen(false)}
+        onSubmit={handleRefreshRequest}
+      />
+          </header>
+    </>
   );
 };

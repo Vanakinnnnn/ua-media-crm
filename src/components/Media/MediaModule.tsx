@@ -3,9 +3,7 @@ import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X,
 import { MediaPlatform, MediaAccount, DefaultSettings, FGInfo } from '../../types';
 import { mockMediaPlatforms, mockMediaAccounts } from '../../data/mockData';
 
-interface MediaModuleProps {
-  refreshSuccess?: boolean;
-}
+interface MediaModuleProps {}
 
 // 自定义多选下拉组件
 interface MultiSelectProps {
@@ -129,7 +127,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({ options, value, onChange, pla
   );
 };
 
-export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
+export const MediaModule: React.FC<MediaModuleProps> = () => {
   const [platforms] = useState<MediaPlatform[]>(mockMediaPlatforms);
   const [accounts, setAccounts] = useState<MediaAccount[]>(mockMediaAccounts);
   const [activeTab, setActiveTab] = useState<'media'>('media');
@@ -1043,22 +1041,6 @@ export const MediaModule: React.FC<MediaModuleProps> = ({ refreshSuccess }) => {
   // 3. 移除视图切换按钮和逻辑，只保留表格
   return (
     <div className="p-6 space-y-6">
-      {refreshSuccess && activeTab === 'media' && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-medium text-green-800">提交成功</h4>
-              <p className="text-sm text-green-700">刷新请求已成功提交，系统正在处理中...</p>
-            </div>
-          </div>
-        </div>
-      )}
-      
       <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
           </div>
