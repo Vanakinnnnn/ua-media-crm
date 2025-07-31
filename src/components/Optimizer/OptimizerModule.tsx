@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, Filter, Edit, Trash2, Check, X, Clock, Save, ChevronDown, ChevronRight } from 'lucide-react';
 import { Optimizer, MediaPermission } from '../../types';
 import { mockOptimizers, mockMediaAccounts, mockMediaPlatforms } from '../../data/mockData';
 import { PlatformLogo } from '../Common/PlatformLogo';
+import MultiSelect from '../Common/MultiSelect';
 
 interface OptimizerModuleProps {
   refreshSuccess?: boolean;
@@ -11,7 +12,23 @@ interface OptimizerModuleProps {
 export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess }) => {
   const [optimizers, setOptimizers] = useState<Optimizer[]>(mockOptimizers);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDepartment, setFilterDepartment] = useState<string>('all');
+  
+  // 筛选器状态
+  const [tempFilters, setTempFilters] = useState({
+    organizationDepartments: [] as string[],
+    permissionDepartments: [] as string[],
+    status: 'all' as string,
+    mediaTypes: [] as string[]
+  });
+  
+  const [appliedFilters, setAppliedFilters] = useState({
+    organizationDepartments: [] as string[],
+    permissionDepartments: [] as string[],
+    status: 'all' as string,
+    mediaTypes: [] as string[]
+  });
+  
+  const [appliedSearch, setAppliedSearch] = useState('');
   const [editingOptimizer, setEditingOptimizer] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Optimizer>>({});
   const [permissionForm, setPermissionForm] = useState<MediaPermission[]>([]);
@@ -19,6 +36,83 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
 
   const departmentOptions = ['010', '045', '055', '060', '919'];
   const platformOptions = ['Google Ads', 'Facebook', 'TikTok', 'AppLovin', 'Unity', 'Moloco'];
+  const statusOptions = [
+    { value: 'all', label: '全部' },
+    { value: 'active', label: 'Active' },
+    { value: 'closed', label: 'Closed' }
+  ];
+
+  // 筛选和搜索逻辑
+  const applyFilters = () => {
+    setAppliedFilters({ ...tempFilters });
+    setAppliedSearch(searchTerm);
+  };
+
+  const resetFilters = () => {
+    const resetState = {
+      organizationDepartments: [],
+      permissionDepartments: [],
+      status: 'all',
+      mediaTypes: []
+    };
+    setTempFilters(resetState);
+    setAppliedFilters(resetState);
+    setSearchTerm('');
+    setAppliedSearch('');
+  };
+
+  // 获取优化师的可搜索文本
+  const getOptimizerSearchableText = (optimizer: Optimizer) => {
+    const basicInfo = [
+      optimizer.slackName,
+      optimizer.email,
+      optimizer.internalEmail,
+      optimizer.externalEmail || '',
+      optimizer.trainingEmail,
+      optimizer.position
+    ];
+
+    const mediaPermissionInfo = optimizer.mediaPermissions.flatMap(permission => [
+      permission.platform,
+      permission.accountManager || '',
+      permission.email,
+      permission.facebookUserId || ''
+    ]);
+
+    return [...basicInfo, ...mediaPermissionInfo].join(' ').toLowerCase();
+  };
+
+  // 高亮搜索关键词
+  const highlightSearchTerm = (text: string, searchTerm: string) => {
+    if (!searchTerm.trim()) return text;
+    
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-200 px-1 rounded">
+          {part}
+        </span>
+      ) : part
+    );
+  };
+
+  // 检查媒体权限是否包含搜索内容
+  const hasSearchInMediaPermissions = (optimizer: Optimizer, searchTerm: string) => {
+    if (!searchTerm.trim()) return false;
+    
+    return optimizer.mediaPermissions.some(permission => {
+      const permissionText = [
+        permission.platform,
+        permission.accountManager || '',
+        permission.email,
+        permission.facebookUserId || ''
+      ].join(' ').toLowerCase();
+      
+      return permissionText.includes(searchTerm.toLowerCase());
+    });
+  };
 
   // 获取可用的账户管家选项
   const getAvailableAccounts = (platform: string, optimizerPermissionDepartments: string[]) => {
@@ -118,6 +212,66 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
       return newSet;
     });
   };
+
+  // 计算过滤后的优化师列表
+  const filteredOptimizers = useMemo(() => {
+    let filtered = optimizers.filter(optimizer => {
+      // 组织部门筛选
+      if (appliedFilters.organizationDepartments.length > 0) {
+        if (!appliedFilters.organizationDepartments.includes(optimizer.organizationDepartment)) {
+          return false;
+        }
+      }
+
+      // 权限部门筛选 (AND逻辑：必须包含所有选中的部门)
+      if (appliedFilters.permissionDepartments.length > 0) {
+        const hasAllPermissionDepartments = appliedFilters.permissionDepartments.every(dept => 
+          optimizer.permissionDepartments.includes(dept as '010' | '045' | '055' | '060' | '919')
+        );
+        if (!hasAllPermissionDepartments) {
+          return false;
+        }
+      }
+
+      // 状态筛选
+      if (appliedFilters.status !== 'all') {
+        if (optimizer.status !== appliedFilters.status) {
+          return false;
+        }
+      }
+
+      // 媒体筛选
+      if (appliedFilters.mediaTypes.length > 0) {
+        const hasMediaType = optimizer.mediaPermissions.some(permission => 
+          appliedFilters.mediaTypes.includes(permission.platform)
+        );
+        if (!hasMediaType) {
+          return false;
+        }
+      }
+
+      // 搜索筛选
+      if (appliedSearch.trim()) {
+        const searchableText = getOptimizerSearchableText(optimizer);
+        if (!searchableText.includes(appliedSearch.toLowerCase())) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    // 如果搜索结果中包含媒体权限相关内容，自动展开
+    if (appliedSearch.trim()) {
+      filtered.forEach(optimizer => {
+        if (hasSearchInMediaPermissions(optimizer, appliedSearch)) {
+          setExpandedPermissions(prev => new Set([...prev, optimizer.id]));
+        }
+      });
+    }
+
+    return filtered;
+  }, [optimizers, appliedFilters, appliedSearch]);
 
 
 
@@ -300,10 +454,34 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
   // 方案6: 折叠式布局
   const renderMediaPermissions_Layout6 = (optimizer: Optimizer) => {
     const isExpanded = expandedPermissions.has(optimizer.id);
-    const permissionCount = optimizer.mediaPermissions.length;
+    
+    // 根据媒体筛选器过滤权限
+    let displayPermissions = optimizer.mediaPermissions;
+    if (appliedFilters.mediaTypes.length > 0) {
+      displayPermissions = optimizer.mediaPermissions.filter(permission => 
+        appliedFilters.mediaTypes.includes(permission.platform)
+      );
+    }
+    
+    // 如果是搜索结果，进一步过滤显示匹配搜索的权限
+    if (appliedSearch.trim() && isExpanded) {
+      displayPermissions = displayPermissions.filter(permission => {
+        const permissionText = [
+          permission.platform,
+          permission.accountManager || '',
+          permission.email,
+          permission.facebookUserId || ''
+        ].join(' ').toLowerCase();
+        
+        return permissionText.includes(appliedSearch.toLowerCase());
+      });
+    }
+    
+    const permissionCount = displayPermissions.length;
+    const totalPermissionCount = optimizer.mediaPermissions.length;
 
-    // 按平台分组权限
-    const groupedPermissions = optimizer.mediaPermissions.reduce((acc, permission) => {
+    // 按平台分组权限（使用过滤后的权限）
+    const groupedPermissions = displayPermissions.reduce((acc, permission) => {
       if (!acc[permission.platform]) {
         acc[permission.platform] = [];
       }
@@ -311,8 +489,17 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
       return acc;
     }, {} as Record<string, MediaPermission[]>);
 
-    // 获取唯一平台列表用于预览
-    const uniquePlatforms = Array.from(new Set(optimizer.mediaPermissions.map(p => p.platform)));
+    // 获取唯一平台列表用于预览（使用过滤后的权限）
+    const uniquePlatforms = Array.from(new Set(displayPermissions.map(p => p.platform)));
+    
+    // 计数显示逻辑
+    const getCountDisplay = () => {
+      // 如果有媒体类型筛选或搜索筛选，并且显示数量与总数不同，显示分数格式
+      if ((appliedFilters.mediaTypes.length > 0 || (appliedSearch.trim() && isExpanded)) && permissionCount !== totalPermissionCount) {
+        return `(${permissionCount}/${totalPermissionCount})`;
+      }
+      return `(${permissionCount})`;
+    };
 
     return (
       <div className="min-w-[280px]">
@@ -328,7 +515,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
               <ChevronRight className="w-4 h-4 text-gray-500" />
             )}
             <span className="text-sm font-medium text-gray-700">
-              媒体权限 ({permissionCount})
+              媒体权限 {getCountDisplay()}
             </span>
           </div>
           
@@ -370,19 +557,19 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                         <div className="grid grid-cols-1 gap-2 text-sm">
                           {permission.accountManager && (
                             <div className="text-gray-700">
-                              <span className="font-medium text-gray-500">账户管家:</span> {permission.accountManager}
+                              <span className="font-medium text-gray-500">账户管家:</span> {highlightSearchTerm(permission.accountManager, appliedSearch)}
                             </div>
                           )}
                           
                           <div className="text-gray-700">
-                            <span className="font-medium text-gray-500">媒体邮箱:</span> {permission.email}
+                            <span className="font-medium text-gray-500">媒体邮箱:</span> {highlightSearchTerm(permission.email, appliedSearch)}
                           </div>
                           
                           {permission.facebookUserId && (
                             <div className="text-gray-700">
                               <span className="font-medium text-gray-500">用户ID:</span> 
-                              <span className="ml-1 px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-                                {permission.facebookUserId}
+                              <span className="ml-1 text-xs text-gray-700">
+                                {highlightSearchTerm(permission.facebookUserId, appliedSearch)}
                               </span>
                             </div>
                           )}
@@ -507,33 +694,136 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
 
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="搜索优化师姓名或邮箱..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        {/* 筛选器 */}
+        <div className="p-4 border-b border-gray-200 space-y-4">
+          {/* 第一行：媒体、状态、组织部门、权限部门 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 媒体类型筛选 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">媒体类型</label>
+              <MultiSelect
+                options={platformOptions}
+                selectedValues={tempFilters.mediaTypes}
+                onChange={(values) => setTempFilters(prev => ({ ...prev, mediaTypes: values }))}
+                placeholder="选择媒体类型"
+                className="w-full"
               />
             </div>
-            <select
-              value={filterDepartment}
-              onChange={(e) => setFilterDepartment(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">所有部门</option>
-              {departmentOptions.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-            <button className="flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="w-4 h-4" />
-              <span>筛选</span>
-            </button>
+
+            {/* 状态筛选 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
+              <select
+                value={tempFilters.status}
+                onChange={(e) => setTempFilters(prev => ({ ...prev, status: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 组织部门筛选 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">组织部门</label>
+              <MultiSelect
+                options={departmentOptions}
+                selectedValues={tempFilters.organizationDepartments}
+                onChange={(values) => setTempFilters(prev => ({ ...prev, organizationDepartments: values }))}
+                placeholder="选择组织部门"
+                className="w-full"
+              />
+            </div>
+
+            {/* 权限部门筛选 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">权限部门</label>
+              <MultiSelect
+                options={departmentOptions}
+                selectedValues={tempFilters.permissionDepartments}
+                onChange={(values) => setTempFilters(prev => ({ ...prev, permissionDepartments: values }))}
+                placeholder="选择权限部门"
+                className="w-full"
+              />
+            </div>
           </div>
+
+          {/* 第二行：搜索、筛选按钮、重置按钮 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            {/* 搜索框 */}
+            <div className="md:col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">综合搜索</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="搜索优化师信息、账户管家、邮箱..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="flex space-x-2 md:col-span-2 md:justify-start">
+              <button
+                onClick={applyFilters}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Filter className="w-4 h-4" />
+                <span>筛选</span>
+              </button>
+              <button
+                onClick={resetFilters}
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <span>重置</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 当前筛选条件标签 */}
+          {(appliedFilters.organizationDepartments.length > 0 || 
+            appliedFilters.permissionDepartments.length > 0 || 
+            appliedFilters.status !== 'all' || 
+            appliedFilters.mediaTypes.length > 0 || 
+            appliedSearch.trim()) && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
+              <span className="text-sm font-medium text-gray-700">当前筛选:</span>
+              
+              {appliedFilters.organizationDepartments.map(dept => (
+                <span key={dept} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  组织部门: {dept}
+                </span>
+              ))}
+              
+              {appliedFilters.permissionDepartments.map(dept => (
+                <span key={dept} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  权限部门: {dept}
+                </span>
+              ))}
+              
+              {appliedFilters.status !== 'all' && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  状态: {statusOptions.find(s => s.value === appliedFilters.status)?.label}
+                </span>
+              )}
+              
+              {appliedFilters.mediaTypes.map(media => (
+                <span key={media} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                  媒体: {media}
+                </span>
+              ))}
+              
+              {appliedSearch.trim() && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  搜索: {appliedSearch}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -567,7 +857,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {optimizers.map((optimizer) => {
+                {filteredOptimizers.map((optimizer) => {
                   const isEditing = editingOptimizer === optimizer.id;
                   
                   return (
@@ -575,9 +865,9 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                       <td className="px-6 py-4">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                           <span className="text-blue-600">{optimizer.slackName}</span>
+                           <span className="text-blue-600">{highlightSearchTerm(optimizer.slackName, appliedSearch)}</span>
                           </div>
-                          <div className="text-sm text-gray-500">{optimizer.email}</div>
+                          <div className="text-sm text-gray-500">{highlightSearchTerm(optimizer.email, appliedSearch)}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -607,7 +897,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                             className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         ) : (
-                          <div className="text-sm text-gray-900">{optimizer.trainingEmail}</div>
+                          <div className="text-sm text-gray-900">{highlightSearchTerm(optimizer.trainingEmail, appliedSearch)}</div>
                         )}
                       </td>
                       <td className="px-6 py-4">
