@@ -18,7 +18,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
   const [expandedPermissions, setExpandedPermissions] = useState<Set<string>>(new Set());
 
   const departmentOptions = ['010', '045', '055', '060', '919'];
-  const platformOptions = ['TikTok', 'Google Ads', 'Unity', 'Facebook', 'Twitter'];
+  const platformOptions = ['Google Ads', 'Facebook', 'TikTok', 'AppLovin', 'Unity', 'Moloco'];
 
   // 获取可用的账户管家选项
   const getAvailableAccounts = (platform: string, optimizerPermissionDepartments: string[]) => {
@@ -53,7 +53,11 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
 
   const handleEdit = (optimizer: Optimizer) => {
     setEditingOptimizer(optimizer.id);
-    setEditForm({ ...optimizer });
+    setEditForm({ 
+      ...optimizer,
+      // 如果培训平台邮箱为空，默认使用优化师邮箱
+      trainingEmail: optimizer.trainingEmail || optimizer.email
+    });
     setPermissionForm([...optimizer.mediaPermissions]);
   };
 
@@ -545,7 +549,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = ({ refreshSuccess
                   <th className="w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     权限部门
                   </th>
-                  <th className="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="w-80 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     媒体权限
                   </th>
                   <th className="w-48 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

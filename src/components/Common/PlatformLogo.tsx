@@ -57,8 +57,24 @@ export const PlatformLogo: React.FC<PlatformLogoProps> = ({ platform, size = 'md
 
     case 'Moloco':
       return (
-        <div className={`${logoClass} bg-purple-600 rounded text-white text-xs font-bold flex items-center justify-center`}>
-          M
+        <div className={`${logoClass} relative`}>
+          <svg className="w-full h-full" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            {/* Moloco Logo - Cloud with M */}
+            <path 
+              d="M6 8C6 5.79 7.79 4 10 4c1.33 0 2.5.65 3.24 1.65C13.66 5.25 14.29 5 15 5c2.21 0 4 1.79 4 4 0 .34-.05.67-.14.98C20.16 10.54 21 11.67 21 13c0 1.66-1.34 3-3 3H8c-2.21 0-4-1.79-4-4 0-1.95 1.4-3.58 3.25-3.96C7.09 8.69 7 8.35 6 8z" 
+              fill="#1E88E5"
+            />
+            <text 
+              x="12" 
+              y="14" 
+              textAnchor="middle" 
+              fontSize="8" 
+              fontWeight="bold" 
+              fill="white"
+            >
+              M
+            </text>
+          </svg>
         </div>
       );
 
