@@ -4,7 +4,8 @@ import { Header } from './components/Layout/Header';
 import { MediaModule } from './components/Media/MediaModule';
 import { OptimizerModule } from './components/Optimizer/OptimizerModule';
 import { OperationLogs } from './components/Common/OperationLogs';
-import PermissionModule from './components/Permissions/PermissionModule';
+// 权限管理模块暂时隐藏，本期项目不开发
+// import PermissionModule from './components/Permissions/PermissionModule';
 import { ProductGroupModule } from './components/ProductGroup/ProductGroupModule';
 
 function App() {
@@ -27,8 +28,9 @@ function App() {
     switch (activeModule) {
       case 'media':
         return <MediaModule />;
-      case 'permissions':
-        return <PermissionModule />;
+      // 权限管理模块暂时隐藏，本期项目不开发
+      // case 'permissions':
+      //   return <PermissionModule />;
       case 'optimizer':
         return <OptimizerModule />;
       case 'productGroup':

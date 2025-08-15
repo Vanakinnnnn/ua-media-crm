@@ -23,12 +23,13 @@ const menuItems = [
     icon: Monitor,
     path: '/media'
   },
-  {
-    id: 'permissions',
-    label: '权限管理',
-    icon: Shield,
-    path: '/permissions'
-  },
+  // 权限管理模块暂时隐藏，本期项目不开发
+  // {
+  //   id: 'permissions',
+  //   label: '权限管理',
+  //   icon: Shield,
+  //   path: '/permissions'
+  // },
   {
     id: 'optimizer',
     label: '优化师管理',
