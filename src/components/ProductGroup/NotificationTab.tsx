@@ -1,0 +1,810 @@
+import React, { useState } from 'react';
+import { Edit2, Save, X, Users, UserCheck, Settings } from 'lucide-react';
+import { NotificationConfig } from '../../types';
+import { mockNotificationConfig } from '../../data/mockData';
+
+interface ColumnEditModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  columnName: string;
+  field: keyof NotificationConfig;
+  currentData: NotificationConfig[];
+  currentItemId: string;
+  isMultiple: boolean;
+  currentValue: string | string[];
+  onApply: (field: keyof NotificationConfig, data: any) => void;
+}
+
+const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
+  isOpen,
+  onClose,
+  columnName,
+  field,
+  currentData,
+  currentItemId,
+  isMultiple,
+  currentValue,
+  onApply
+}) => {
+  const [selectedOptions, setSelectedOptions] = useState<{
+    growthManager: boolean;
+    teamLead: boolean;
+  }>({
+    growthManager: false,
+    teamLead: false
+  });
+
+  // 初始化选中状态
+  React.useEffect(() => {
+    if (isOpen) {
+      if (isMultiple) {
+        // 多选列：检查整列中是否所有行都包含增长负责人和巴长
+        const allRowsHaveGrowthManager = currentData.every(item => {
+          const value = item[field];
+          const array = Array.isArray(value) ? value : [value];
+          return array.some(v => v === '增长负责人');
+        });
+        
+        const allRowsHaveTeamLead = currentData.every(item => {
+          const value = item[field];
+          const array = Array.isArray(value) ? value : [value];
+          return array.some(v => v === '巴长');
+        });
+        
+        setSelectedOptions({
+          growthManager: allRowsHaveGrowthManager,
+          teamLead: allRowsHaveTeamLead
+        });
+      } else {
+        // 单选列：检查当前编辑行的值
+        const currentArray = Array.isArray(currentValue) ? currentValue : [currentValue];
+        const hasGrowthManager = currentArray.some(item => item === '增长负责人');
+        const hasTeamLead = currentArray.some(item => item === '巴长');
+        
+        setSelectedOptions({
+          growthManager: hasGrowthManager,
+          teamLead: hasTeamLead
+        });
+      }
+    }
+  }, [isOpen, currentValue, isMultiple, currentData, field]);
+
+  if (!isOpen) return null;
+
+  const handleApply = () => {
+    const result: any = {};
+    
+    if (isMultiple) {
+      // 多选列：追加模式，更新所有行
+      result.operation = 'updateAllRows';
+      result.growthManager = selectedOptions.growthManager;
+      result.teamLead = selectedOptions.teamLead;
+    } else {
+      // 单选列：覆盖模式
+      if (selectedOptions.growthManager) {
+        result.newValue = '增长负责人';
+      } else if (selectedOptions.teamLead) {
+        result.newValue = '巴长';
+      } else {
+        result.newValue = '';
+      }
+    }
+    
+    onApply(field, result);
+    onClose();
+    setSelectedOptions({ growthManager: false, teamLead: false });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 className="text-lg font-medium text-gray-900">编辑{columnName}</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div className="space-y-3">
+            <label className="flex items-center space-x-3">
+              <input
+                type={isMultiple ? "checkbox" : "radio"}
+                checked={selectedOptions.growthManager}
+                onChange={(e) => {
+                  if (isMultiple) {
+                    setSelectedOptions(prev => ({ ...prev, growthManager: e.target.checked }));
+                  } else {
+                    setSelectedOptions(prev => ({ 
+                      ...prev, 
+                      growthManager: e.target.checked,
+                      teamLead: !e.target.checked,
+                      customEmail: ''
+                    }));
+                  }
+                }}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-900">添加本组增长负责人</span>
+            </label>
+            
+            <label className="flex items-center space-x-3">
+              <input
+                type={isMultiple ? "checkbox" : "radio"}
+                checked={selectedOptions.teamLead}
+                onChange={(e) => {
+                  if (isMultiple) {
+                    setSelectedOptions(prev => ({ ...prev, teamLead: e.target.checked }));
+                  } else {
+                    setSelectedOptions(prev => ({ 
+                      ...prev, 
+                      teamLead: e.target.checked,
+                      growthManager: !e.target.checked
+                    }));
+                  }
+                }}
+                className="text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-900">添加本组巴长</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            取消
+          </button>
+          <button
+            onClick={handleApply}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            应用
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const NotificationTab: React.FC = () => {
+  const [notificationConfig, setNotificationConfig] = useState<NotificationConfig[]>(mockNotificationConfig);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<Partial<NotificationConfig>>({});
+  const [columnEditModal, setColumnEditModal] = useState<{
+    isOpen: boolean;
+    columnName: string;
+    field: keyof NotificationConfig;
+  }>({
+    isOpen: false,
+    columnName: '',
+    field: 'accountApprovalPerson'
+  });
+
+  // 开始编辑
+  const startEditing = (item: NotificationConfig) => {
+    setEditingId(item.id);
+    setEditingData({
+      approvalAM: [...item.approvalAM],
+      growthManager: item.growthManager.length > 0 ? [item.growthManager[0]] : [],
+      teamLead: item.teamLead.length > 0 ? [item.teamLead[0]] : [],
+      accountApprovalPerson: item.accountApprovalPerson,
+      permissionApprovalPerson: item.permissionApprovalPerson,
+      balanceNotificationPerson: [...item.balanceNotificationPerson],
+      balanceNotificationChannel: item.balanceNotificationChannel,
+      rechargeNotificationPerson: [...item.rechargeNotificationPerson]
+    });
+  };
+
+  // 保存编辑
+  const saveEditing = () => {
+    if (editingId && editingData) {
+      setNotificationConfig(prev => 
+        prev.map(item => 
+          item.id === editingId 
+            ? { ...item, ...editingData }
+            : item
+        )
+      );
+      setEditingId(null);
+      setEditingData({});
+    }
+  };
+
+  // 取消编辑
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditingData({});
+  };
+
+  // 更新编辑数据
+  const updateEditingData = (field: keyof NotificationConfig, value: string | string[]) => {
+    setEditingData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // 打开列编辑模态框
+  const openColumnEdit = (columnName: string, field: keyof NotificationConfig) => {
+    setColumnEditModal({
+      isOpen: true,
+      columnName,
+      field
+    });
+  };
+
+  // 应用列编辑
+  const applyColumnEdit = (field: keyof NotificationConfig, data: any) => {
+    if (data.operation === 'updateAllRows') {
+      // 多选列：追加模式，更新所有行
+      setNotificationConfig(prev => 
+        prev.map(item => {
+          const currentValue = item[field];
+          const currentArray = Array.isArray(currentValue) ? currentValue : [];
+          let newArray = [...currentArray];
+          
+          // 处理增长负责人
+          if (data.growthManager && !newArray.includes('增长负责人')) {
+            newArray.push('增长负责人');
+          } else if (!data.growthManager && newArray.includes('增长负责人')) {
+            newArray = newArray.filter(v => v !== '增长负责人');
+          }
+          
+          // 处理巴长
+          if (data.teamLead && !newArray.includes('巴长')) {
+            newArray.push('巴长');
+          } else if (!data.teamLead && newArray.includes('巴长')) {
+            newArray = newArray.filter(v => v !== '巴长');
+          }
+          
+          // 处理自定义邮箱
+          if (data.customEmail && !newArray.includes(data.customEmail)) {
+            newArray.push(data.customEmail);
+          }
+          
+          return {
+            ...item,
+            [field]: newArray
+          };
+        })
+      );
+      
+      // 如果当前正在编辑，也更新编辑数据
+      if (editingId) {
+        setEditingData(prev => {
+          const currentValue = prev[field];
+          const currentArray = Array.isArray(currentValue) ? currentValue : [];
+          let newArray = [...currentArray];
+          
+          // 处理增长负责人
+          if (data.growthManager && !newArray.includes('增长负责人')) {
+            newArray.push('增长负责人');
+          } else if (!data.growthManager && newArray.includes('增长负责人')) {
+            newArray = newArray.filter(v => v !== '增长负责人');
+          }
+          
+          // 处理巴长
+          if (data.teamLead && !newArray.includes('巴长')) {
+            newArray.push('巴长');
+          } else if (!data.teamLead && newArray.includes('巴长')) {
+            newArray = newArray.filter(v => v !== '巴长');
+          }
+          
+          return { ...prev, [field]: newArray };
+        });
+      }
+    } else {
+      // 单选列：覆盖模式
+      setNotificationConfig(prev => 
+        prev.map(item => {
+          return {
+            ...item,
+            [field]: data.newValue
+          };
+        })
+      );
+      
+      // 如果当前正在编辑，也更新编辑数据
+      if (editingId) {
+        setEditingData(prev => ({ ...prev, [field]: data.newValue }));
+      }
+    }
+  };
+
+  // 为单个单元格添加角色（多选列）
+  const addRoleToMultiCell = (field: keyof NotificationConfig, role: 'growthManager' | 'teamLead') => {
+    if (!editingData) return;
+    
+    const roleLabel = role === 'growthManager' ? '增长负责人' : '巴长';
+    const currentValue = editingData[field];
+    const currentArray = Array.isArray(currentValue) ? currentValue : [];
+    
+    // 检查是否已经存在该角色
+    if (!currentArray.includes(roleLabel)) {
+      updateEditingData(field, [...currentArray, roleLabel]);
+    }
+  };
+
+  // 为单个单元格添加角色（单选列）
+  const addRoleToSingleCell = (field: keyof NotificationConfig, role: 'growthManager' | 'teamLead') => {
+    if (!editingData) return;
+    
+    const roleLabel = role === 'growthManager' ? '增长负责人' : '巴长';
+    updateEditingData(field, roleLabel);
+  };
+
+  // 删除邮箱
+  const removeEmail = (field: keyof NotificationConfig, index: number) => {
+    if (!editingData) return;
+    
+    const currentValue = editingData[field];
+    if (!Array.isArray(currentValue)) return;
+    
+    const newEmails = currentValue.filter((_, i) => i !== index);
+    updateEditingData(field, newEmails);
+  };
+
+  // 检查是否为角色标识
+  const isRoleLabel = (value: string) => {
+    return value === '增长负责人' || value === '巴长';
+  };
+
+  // 渲染角色图标
+  const renderRoleIcon = (value: string) => {
+    if (value === '增长负责人') {
+      return (
+        <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+          <Users className="w-3 h-3 mr-1" />
+          增长负责人
+        </span>
+      );
+    } else if (value === '巴长') {
+      return (
+        <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+          <UserCheck className="w-3 h-3 mr-1" />
+          巴长
+        </span>
+      );
+    }
+    return value;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* 数据表格 */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                  产品组
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
+                  审批AM
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
+                  增长负责人
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
+                  巴长
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
+                  <div className="flex items-center space-x-2">
+                    <span>开户申请审批人</span>
+                    <button
+                      onClick={() => openColumnEdit('开户申请审批人', 'accountApprovalPerson')}
+                      className="text-blue-600 hover:text-blue-900"
+                      title="编辑整列"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
+                  <div className="flex items-center space-x-2">
+                    <span>权限申请审批人</span>
+                    <button
+                      onClick={() => openColumnEdit('权限申请审批人', 'permissionApprovalPerson')}
+                      className="text-blue-600 hover:text-blue-900"
+                      title="编辑整列"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
+                  <div className="flex items-center space-x-2">
+                    <span>余额不足通知人</span>
+                    <button
+                      onClick={() => openColumnEdit('余额不足通知人', 'balanceNotificationPerson')}
+                      className="text-blue-600 hover:text-blue-900"
+                      title="编辑整列"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
+                  余额不足通知频道
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
+                  <div className="flex items-center space-x-2">
+                    <span>充值申请通知</span>
+                    <button
+                      onClick={() => openColumnEdit('充值申请通知', 'rechargeNotificationPerson')}
+                      className="text-blue-600 hover:text-blue-900"
+                      title="编辑整列"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
+                  操作
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {notificationConfig.map((item) => {
+                const isEditing = editingId === item.id;
+                const editingItem = editingData;
+                
+                return (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    {/* 产品组 */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {item.productGroup.code}
+                      </div>
+                    </td>
+
+                    {/* 审批AM */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          {(editingItem.approvalAM || []).map((email, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <div className="flex-1 text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
+                                {isRoleLabel(email) ? renderRoleIcon(email) : email}
+                              </div>
+                              <button
+                                onClick={() => removeEmail('approvalAM', index)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                          <input
+                            type="text"
+                            placeholder="输入邮箱后按回车"
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                updateEditingData('approvalAM', [...(editingItem.approvalAM || []), e.currentTarget.value.trim()]);
+                                e.currentTarget.value = '';
+                              }
+                            }}
+                          />
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => addRoleToMultiCell('approvalAM', 'growthManager')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                              <Users className="w-3 h-3" />
+                              <span>增长负责人</span>
+                            </button>
+                            <button
+                              onClick={() => addRoleToMultiCell('approvalAM', 'teamLead')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              <span>巴长</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {item.approvalAM.map((email, index) => (
+                            <div key={index} className="text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
+                              {isRoleLabel(email) ? renderRoleIcon(email) : email}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 增长负责人 - 单邮箱 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editingItem.growthManager?.[0] || ''}
+                          onChange={(e) => updateEditingData('growthManager', [e.target.value])}
+                          placeholder="请输入邮箱"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        />
+                      ) : (
+                        <div className="text-sm text-gray-900">
+                          {item.growthManager.length > 0 ? item.growthManager[0] : '-'}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 巴长 - 单邮箱 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editingItem.teamLead?.[0] || ''}
+                          onChange={(e) => updateEditingData('teamLead', [e.target.value])}
+                          placeholder="请输入邮箱"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        />
+                      ) : (
+                        <div className="text-sm text-gray-900">
+                          {item.teamLead.length > 0 ? item.teamLead[0] : '-'}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 开户申请审批人 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={editingItem.accountApprovalPerson || ''}
+                            onChange={(e) => updateEditingData('accountApprovalPerson', e.target.value)}
+                            placeholder="请输入邮箱"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          />
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => addRoleToSingleCell('accountApprovalPerson', 'growthManager')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                              <Users className="w-3 h-3" />
+                              <span>增长负责人</span>
+                            </button>
+                            <button
+                              onClick={() => addRoleToSingleCell('accountApprovalPerson', 'teamLead')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              <span>巴长</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-900">
+                          {isRoleLabel(item.accountApprovalPerson) ? renderRoleIcon(item.accountApprovalPerson) : (item.accountApprovalPerson || '-')}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 权限申请审批人 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={editingItem.permissionApprovalPerson || ''}
+                            onChange={(e) => updateEditingData('permissionApprovalPerson', e.target.value)}
+                            placeholder="请输入邮箱"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          />
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => addRoleToSingleCell('permissionApprovalPerson', 'growthManager')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                              <Users className="w-3 h-3" />
+                              <span>增长负责人</span>
+                            </button>
+                            <button
+                              onClick={() => addRoleToSingleCell('permissionApprovalPerson', 'teamLead')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              <span>巴长</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-900">
+                          {isRoleLabel(item.permissionApprovalPerson) ? renderRoleIcon(item.permissionApprovalPerson) : (item.permissionApprovalPerson || '-')}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 余额不足通知人 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          {(editingItem.balanceNotificationPerson || []).map((email, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <div className="flex-1 text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
+                                {isRoleLabel(email) ? renderRoleIcon(email) : email}
+                              </div>
+                              <button
+                                onClick={() => removeEmail('balanceNotificationPerson', index)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                          <input
+                            type="text"
+                            placeholder="输入邮箱后按回车"
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                updateEditingData('balanceNotificationPerson', [...(editingItem.balanceNotificationPerson || []), e.currentTarget.value.trim()]);
+                                e.currentTarget.value = '';
+                              }
+                            }}
+                          />
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => addRoleToMultiCell('balanceNotificationPerson', 'growthManager')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                              <Users className="w-3 h-3" />
+                              <span>增长负责人</span>
+                            </button>
+                            <button
+                              onClick={() => addRoleToMultiCell('balanceNotificationPerson', 'teamLead')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              <span>巴长</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {item.balanceNotificationPerson.map((email, index) => (
+                            <div key={index} className="text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
+                              {isRoleLabel(email) ? renderRoleIcon(email) : email}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 余额不足通知频道 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editingItem.balanceNotificationChannel || ''}
+                          onChange={(e) => updateEditingData('balanceNotificationChannel', e.target.value)}
+                          placeholder="请输入频道"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        />
+                      ) : (
+                        <div className="text-sm text-gray-900">
+                          {item.balanceNotificationChannel || '-'}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 充值申请通知 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          {(editingItem.rechargeNotificationPerson || []).map((email, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <div className="flex-1 text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
+                                {isRoleLabel(email) ? renderRoleIcon(email) : email}
+                              </div>
+                              <button
+                                onClick={() => removeEmail('rechargeNotificationPerson', index)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                          <input
+                            type="text"
+                            placeholder="输入邮箱后按回车"
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                updateEditingData('rechargeNotificationPerson', [...(editingItem.rechargeNotificationPerson || []), e.currentTarget.value.trim()]);
+                                e.currentTarget.value = '';
+                              }
+                            }}
+                          />
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => addRoleToMultiCell('rechargeNotificationPerson', 'growthManager')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                              <Users className="w-3 h-3" />
+                              <span>增长负责人</span>
+                            </button>
+                            <button
+                              onClick={() => addRoleToMultiCell('rechargeNotificationPerson', 'teamLead')}
+                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              <span>巴长</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {item.rechargeNotificationPerson.map((email, index) => (
+                            <div key={index} className="text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
+                              {isRoleLabel(email) ? renderRoleIcon(email) : email}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* 操作按钮 */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      {isEditing ? (
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={saveEditing}
+                            className="text-green-600 hover:text-green-900 transition-colors"
+                            title="保存"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={cancelEditing}
+                            className="text-gray-600 hover:text-gray-900 transition-colors"
+                            title="取消"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => startEditing(item)}
+                          className="text-blue-600 hover:text-blue-900 transition-colors"
+                          title="编辑"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 统计信息 */}
+      <div className="text-sm text-gray-500 text-center">
+        共 {notificationConfig.length} 个产品组
+      </div>
+
+      {/* 列编辑模态框 */}
+      <ColumnEditModal
+        isOpen={columnEditModal.isOpen}
+        onClose={() => setColumnEditModal(prev => ({ ...prev, isOpen: false }))}
+        columnName={columnEditModal.columnName}
+        field={columnEditModal.field}
+        currentData={notificationConfig}
+        currentItemId={editingId || ''}
+        isMultiple={['approvalAM', 'balanceNotificationPerson', 'rechargeNotificationPerson'].includes(columnEditModal.field)}
+        currentValue={editingId ? (editingData[columnEditModal.field] as string | string[] || '') : ''}
+        onApply={applyColumnEdit}
+      />
+    </div>
+  );
+}; 
