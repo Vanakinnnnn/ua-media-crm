@@ -1,4 +1,4 @@
-import { MediaPlatform, MediaAccount, Optimizer, Permission, MainEntity, OperationLog, PermissionRelation, PermissionTemplate, PermissionAudit } from '../types';
+import { MediaPlatform, MediaAccount, Optimizer, Permission, MainEntity, OperationLog, PermissionRelation, PermissionTemplate, PermissionAudit, ProductGroup, BusinessInfo, NotificationConfig } from '../types';
 import { FacebookBM, FacebookAdAccount } from '../types';
 
 export const mockMediaPlatforms: MediaPlatform[] = [
@@ -591,48 +591,210 @@ export const mockMainEntities: MainEntity[] = [
 export const mockOperationLogs: OperationLog[] = [
   {
     id: '1',
-    userId: '@zhangsan',
-    action: '添加媒体账户',
+    userId: 'admin',
+    userName: '系统管理员',
+    action: 'create',
     module: 'media',
-    details: '创建了新的TikTok账户',
+    objectType: 'MediaAccount',
+    objectId: 'new-account-001',
+    objectName: 'Gaming Division',
+    objectDetails: {
+      after: {
+        name: 'Gaming Division',
+        accountId: 'SUB-001',
+        type: 'sub',
+        company: 'EY PTE. LTD',
+        departments: ['055', '060']
+      }
+    },
+    description: '新增Google Ads子账户',
     timestamp: '2024-01-25 14:30:00',
-    updated: true
+    ipAddress: '192.168.1.100',
+    status: 'success'
   },
   {
     id: '2',
-    userId: '@lisi',
-    action: '申请权限',
+    userId: 'zhang.san',
+    userName: '张先生',
+    action: 'update',
     module: 'optimizer',
-    details: '申请Google Ads管理员权限',
+    objectType: 'MediaPermission',
+    objectId: 'permission-001',
+    objectName: 'Google Ads权限',
+    objectDetails: {
+      before: {
+        platform: 'Google Ads',
+        accountManager: 'Main MCC Account',
+        email: 'zhang.san.ads@gmail.com'
+      },
+      after: {
+        platform: 'Google Ads',
+        accountManager: 'Gaming Division',
+        email: 'zhang.san.ads@gmail.com'
+      },
+      changes: [
+        {
+          field: 'accountManager',
+          oldValue: 'Main MCC Account',
+          newValue: 'Gaming Division'
+        }
+      ]
+    },
+    description: '修改Google Ads账户管家权限',
     timestamp: '2024-01-25 13:15:00',
-    updated: false
+    ipAddress: '192.168.1.101',
+    status: 'success'
   },
   {
     id: '3',
-    userId: '@wangwu',
-    action: '更新账户信息',
-    module: 'media',
-    details: '修改了Google Ads账户的默认设置',
-    timestamp: '2024-01-25 12:45:00',
-    updated: true
+    userId: 'john.smith',
+    userName: 'John Smith',
+    action: 'update',
+    module: 'optimizer',
+    objectType: 'Optimizer',
+    objectId: 'optimizer-002',
+    objectName: 'John Smith',
+    objectDetails: {
+      before: {
+        trainingEmail: 'john.smith.training@oldplatform.com'
+      },
+      after: {
+        trainingEmail: 'john.smith.training@platform.com'
+      },
+      changes: [
+        {
+          field: 'trainingEmail',
+          oldValue: 'john.smith.training@oldplatform.com',
+          newValue: 'john.smith.training@platform.com'
+        }
+      ]
+    },
+    description: '更新培训平台邮箱',
+    timestamp: '2024-01-25 12:00:00',
+    ipAddress: '192.168.1.102',
+    status: 'success'
   },
   {
     id: '4',
-    userId: '@zhangsan',
-    action: '编辑优化师信息',
-    module: 'optimizer',
-    details: '更新了媒体权限配置',
-    timestamp: '2024-01-25 11:20:00',
-    updated: true
+    userId: 'admin',
+    userName: '系统管理员',
+    action: 'refresh',
+    module: 'facebook',
+    objectType: 'FacebookBM',
+    objectId: 'bm-001',
+    objectName: 'Facebook Business Manager',
+    objectDetails: {
+      before: {
+        lastUpdated: '2024-01-24 10:00:00'
+      },
+      after: {
+        lastUpdated: '2024-01-25 14:30:00'
+      }
+    },
+    description: '申请Facebook BM数据刷新',
+    timestamp: '2024-01-25 14:30:00',
+    ipAddress: '192.168.1.100',
+    status: 'success'
   },
   {
     id: '5',
-    userId: '@lisi',
-    action: '删除媒体账户',
+    userId: 'li.si',
+    userName: '李女士',
+    action: 'create',
+    module: 'optimizer',
+    objectType: 'MediaPermission',
+    objectId: 'permission-005',
+    objectName: 'TikTok权限',
+    objectDetails: {
+      after: {
+        platform: 'TikTok',
+        email: 'li.si.tiktok@gmail.com'
+      }
+    },
+    description: '新增TikTok平台权限',
+    timestamp: '2024-01-25 11:30:00',
+    ipAddress: '192.168.1.103',
+    status: 'success'
+  },
+  {
+    id: '6',
+    userId: 'admin',
+    userName: '系统管理员',
+    action: 'update',
     module: 'media',
-    details: '删除了已关闭的Facebook账户',
-    timestamp: '2024-01-24 16:30:00',
-    updated: false
+    objectType: 'MediaAccount',
+    objectId: 'account-002',
+    objectName: 'E-commerce Division',
+    objectDetails: {
+      before: {
+        departments: ['010']
+      },
+      after: {
+        departments: ['010', '045']
+      },
+      changes: [
+        {
+          field: 'departments',
+          oldValue: ['010'],
+          newValue: ['010', '045']
+        }
+      ]
+    },
+    description: '修改账户所属部门',
+    timestamp: '2024-01-25 10:15:00',
+    ipAddress: '192.168.1.100',
+    status: 'success'
+  },
+  {
+    id: '7',
+    userId: 'emma.davis',
+    userName: 'Emma Davis',
+    action: 'update',
+    module: 'optimizer',
+    objectType: 'Optimizer',
+    objectId: 'optimizer-004',
+    objectName: 'Emma Davis',
+    objectDetails: {
+      before: {
+        status: 'active'
+      },
+      after: {
+        status: 'closed'
+      },
+      changes: [
+        {
+          field: 'status',
+          oldValue: 'active',
+          newValue: 'closed'
+        }
+      ]
+    },
+    description: '停用优化师账户',
+    timestamp: '2024-01-25 09:45:00',
+    ipAddress: '192.168.1.104',
+    status: 'success'
+  },
+  {
+    id: '8',
+    userId: 'admin',
+    userName: '系统管理员',
+    action: 'refresh',
+    module: 'system',
+    objectType: 'MediaAccount',
+    objectId: 'all-accounts',
+    objectName: '所有账户',
+    objectDetails: {
+      before: {
+        lastUpdated: '2024-01-24 18:00:00'
+      },
+      after: {
+        lastUpdated: '2024-01-25 14:30:00'
+      }
+    },
+    description: '申请账户管家数据刷新',
+    timestamp: '2024-01-25 14:30:00',
+    ipAddress: '192.168.1.100',
+    status: 'success'
   }
 ];
 
@@ -1321,5 +1483,224 @@ export const mockPermissionAudits: PermissionAudit[] = [
     count: 2,
     items: ['Sarah Wilson: Google Ads STANDARD vs Facebook MANAGE', 'Alex Johnson: Unity LIMITED vs Moloco READONLY'],
     affectedRelations: ['perm-6', 'perm-10', 'perm-14', 'perm-16']
+  }
+];
+
+// 产品组管理数据
+export const mockProductGroups: ProductGroup[] = [
+  { id: '1', name: '包F10', code: 'F10' },
+  { id: '2', name: '包F45', code: 'F45' },
+  { id: '3', name: '包F55', code: 'F55' },
+  { id: '4', name: '包F60', code: 'F60' },
+  { id: '5', name: '包F75', code: 'F75' },
+  { id: '6', name: '包F89', code: 'F89' },
+  { id: '7', name: '包F919', code: 'F919' },
+  { id: '8', name: '包F41', code: 'F41' },
+  { id: '9', name: '包F42', code: 'F42' },
+  { id: '10', name: '包F35', code: 'F35' },
+  { id: '11', name: 'UGC', code: 'UGC' }
+];
+
+export const mockBusinessInfo: BusinessInfo[] = [
+  {
+    id: '1',
+    productGroup: mockProductGroups[0],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f10',
+    tiktokIndustryId: 'TIK001'
+  },
+  {
+    id: '2',
+    productGroup: mockProductGroups[1],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f45',
+    tiktokIndustryId: 'TIK002'
+  },
+  {
+    id: '3',
+    productGroup: mockProductGroups[2],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f55',
+    tiktokIndustryId: 'TIK003'
+  },
+  {
+    id: '4',
+    productGroup: mockProductGroups[3],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f60',
+    tiktokIndustryId: 'TIK004'
+  },
+  {
+    id: '5',
+    productGroup: mockProductGroups[4],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f75',
+    tiktokIndustryId: 'TIK005'
+  },
+  {
+    id: '6',
+    productGroup: mockProductGroups[5],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f89',
+    tiktokIndustryId: 'TIK006'
+  },
+  {
+    id: '7',
+    productGroup: mockProductGroups[6],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f919',
+    tiktokIndustryId: 'TIK007'
+  },
+  {
+    id: '8',
+    productGroup: mockProductGroups[7],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f41',
+    tiktokIndustryId: 'TIK008'
+  },
+  {
+    id: '9',
+    productGroup: mockProductGroups[8],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f42',
+    tiktokIndustryId: 'TIK009'
+  },
+  {
+    id: '10',
+    productGroup: mockProductGroups[9],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/f35',
+    tiktokIndustryId: 'TIK010'
+  },
+  {
+    id: '11',
+    productGroup: mockProductGroups[10],
+    tiktokPromotionLink: 'https://tiktok.com/promotion/ugc',
+    tiktokIndustryId: 'TIK011'
+  }
+];
+
+export const mockNotificationConfig: NotificationConfig[] = [
+  {
+    id: '1',
+    productGroup: mockProductGroups[0],
+    approvalAM: ['zhang.san@company.com', 'li.si@company.com'],
+    growthManager: ['wang.wu@company.com', 'zhao.liu@company.com'],
+    teamLead: ['sun.qi@company.com'],
+    accountApprovalPerson: 'zhang.san@company.com',
+    permissionApprovalPerson: 'li.si@company.com',
+    balanceNotificationPerson: ['wang.wu@company.com', 'zhao.liu@company.com'],
+    balanceNotificationChannel: '#f10-balance-alert',
+    rechargeNotificationPerson: ['sun.qi@company.com', 'zhang.san@company.com']
+  },
+  {
+    id: '2',
+    productGroup: mockProductGroups[1],
+    approvalAM: ['emma.davis@company.com'],
+    growthManager: ['john.smith@company.com'],
+    teamLead: ['michael.brown@company.com'],
+    accountApprovalPerson: 'emma.davis@company.com',
+    permissionApprovalPerson: 'john.smith@company.com',
+    balanceNotificationPerson: ['michael.brown@company.com'],
+    balanceNotificationChannel: '#f45-balance-alert',
+    rechargeNotificationPerson: ['emma.davis@company.com', 'john.smith@company.com']
+  },
+  {
+    id: '3',
+    productGroup: mockProductGroups[2],
+    approvalAM: ['sarah.wilson@company.com', 'david.miller@company.com'],
+    growthManager: ['lisa.anderson@company.com'],
+    teamLead: ['james.taylor@company.com', 'emily.white@company.com'],
+    accountApprovalPerson: 'sarah.wilson@company.com',
+    permissionApprovalPerson: 'david.miller@company.com',
+    balanceNotificationPerson: ['lisa.anderson@company.com', 'james.taylor@company.com'],
+    balanceNotificationChannel: '#f55-balance-alert',
+    rechargeNotificationPerson: ['emily.white@company.com']
+  },
+  {
+    id: '4',
+    productGroup: mockProductGroups[3],
+    approvalAM: ['robert.johnson@company.com'],
+    growthManager: ['jennifer.garcia@company.com', 'thomas.martinez@company.com'],
+    teamLead: ['christopher.rodriguez@company.com'],
+    accountApprovalPerson: 'robert.johnson@company.com',
+    permissionApprovalPerson: 'jennifer.garcia@company.com',
+    balanceNotificationPerson: ['thomas.martinez@company.com'],
+    balanceNotificationChannel: '#f60-balance-alert',
+    rechargeNotificationPerson: ['christopher.rodriguez@company.com', 'robert.johnson@company.com']
+  },
+  {
+    id: '5',
+    productGroup: mockProductGroups[4],
+    approvalAM: ['daniel.lee@company.com', 'ashley.gonzalez@company.com'],
+    growthManager: ['matthew.perez@company.com'],
+    teamLead: ['jessica.turner@company.com'],
+    accountApprovalPerson: 'daniel.lee@company.com',
+    permissionApprovalPerson: 'ashley.gonzalez@company.com',
+    balanceNotificationPerson: ['matthew.perez@company.com', 'jessica.turner@company.com'],
+    balanceNotificationChannel: '#f75-balance-alert',
+    rechargeNotificationPerson: ['daniel.lee@company.com']
+  },
+  {
+    id: '6',
+    productGroup: mockProductGroups[5],
+    approvalAM: ['andrew.campbell@company.com'],
+    growthManager: ['nicole.mitchell@company.com', 'kevin.carter@company.com'],
+    teamLead: ['stephanie.roberts@company.com'],
+    accountApprovalPerson: 'andrew.campbell@company.com',
+    permissionApprovalPerson: 'nicole.mitchell@company.com',
+    balanceNotificationPerson: ['kevin.carter@company.com'],
+    balanceNotificationChannel: '#f89-balance-alert',
+    rechargeNotificationPerson: ['stephanie.roberts@company.com', 'andrew.campbell@company.com']
+  },
+  {
+    id: '7',
+    productGroup: mockProductGroups[6],
+    approvalAM: ['rachel.phillips@company.com', 'tyler.evans@company.com'],
+    growthManager: ['amanda.edwards@company.com'],
+    teamLead: ['brandon.collins@company.com', 'melissa.stewart@company.com'],
+    accountApprovalPerson: 'rachel.phillips@company.com',
+    permissionApprovalPerson: 'tyler.evans@company.com',
+    balanceNotificationPerson: ['amanda.edwards@company.com', 'brandon.collins@company.com'],
+    balanceNotificationChannel: '#f919-balance-alert',
+    rechargeNotificationPerson: ['melissa.stewart@company.com']
+  },
+  {
+    id: '8',
+    productGroup: mockProductGroups[7],
+    approvalAM: ['nathan.sanchez@company.com'],
+    growthManager: ['samantha.morris@company.com', 'ryan.rogers@company.com'],
+    teamLead: ['lauren.reed@company.com'],
+    accountApprovalPerson: 'nathan.sanchez@company.com',
+    permissionApprovalPerson: 'samantha.morris@company.com',
+    balanceNotificationPerson: ['ryan.rogers@company.com'],
+    balanceNotificationChannel: '#f41-balance-alert',
+    rechargeNotificationPerson: ['lauren.reed@company.com', 'nathan.sanchez@company.com']
+  },
+  {
+    id: '9',
+    productGroup: mockProductGroups[8],
+    approvalAM: ['katherine.cook@company.com', 'eric.morgan@company.com'],
+    growthManager: ['heather.bell@company.com'],
+    teamLead: ['adam.murphy@company.com'],
+    accountApprovalPerson: 'katherine.cook@company.com',
+    permissionApprovalPerson: 'eric.morgan@company.com',
+    balanceNotificationPerson: ['heather.bell@company.com', 'adam.murphy@company.com'],
+    balanceNotificationChannel: '#f42-balance-alert',
+    rechargeNotificationPerson: ['katherine.cook@company.com']
+  },
+  {
+    id: '10',
+    productGroup: mockProductGroups[9],
+    approvalAM: ['victoria.bailey@company.com'],
+    growthManager: ['christopher.rivera@company.com', 'danielle.cooper@company.com'],
+    teamLead: ['patrick.richardson@company.com'],
+    accountApprovalPerson: 'victoria.bailey@company.com',
+    permissionApprovalPerson: 'christopher.rivera@company.com',
+    balanceNotificationPerson: ['danielle.cooper@company.com'],
+    balanceNotificationChannel: '#f35-balance-alert',
+    rechargeNotificationPerson: ['patrick.richardson@company.com', 'victoria.bailey@company.com']
+  },
+  {
+    id: '11',
+    productGroup: mockProductGroups[10],
+    approvalAM: ['alexandra.cox@company.com', 'sean.ward@company.com'],
+    growthManager: ['rebecca.torres@company.com'],
+    teamLead: ['gregory.peterson@company.com', 'hannah.gray@company.com'],
+    accountApprovalPerson: 'alexandra.cox@company.com',
+    permissionApprovalPerson: 'sean.ward@company.com',
+    balanceNotificationPerson: ['rebecca.torres@company.com', 'gregory.peterson@company.com'],
+    balanceNotificationChannel: '#ugc-balance-alert',
+    rechargeNotificationPerson: ['hannah.gray@company.com']
   }
 ];

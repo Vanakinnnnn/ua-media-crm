@@ -5,6 +5,7 @@ import { MediaModule } from './components/Media/MediaModule';
 import { OptimizerModule } from './components/Optimizer/OptimizerModule';
 import { OperationLogs } from './components/Common/OperationLogs';
 import PermissionModule from './components/Permissions/PermissionModule';
+import { ProductGroupModule } from './components/ProductGroup/ProductGroupModule';
 
 function App() {
   const [activeModule, setActiveModule] = useState('media');
@@ -25,15 +26,17 @@ function App() {
   const renderModule = () => {
     switch (activeModule) {
       case 'media':
-        return <MediaModule refreshSuccess={refreshSuccess} />;
+        return <MediaModule />;
       case 'permissions':
         return <PermissionModule />;
       case 'optimizer':
-        return <OptimizerModule refreshSuccess={refreshSuccess} />;
+        return <OptimizerModule />;
+      case 'productGroup':
+        return <ProductGroupModule />;
       case 'logs':
         return <OperationLogs />;
       default:
-        return <MediaModule refreshSuccess={refreshSuccess} />;
+        return <MediaModule />;
     }
   };
 

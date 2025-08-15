@@ -800,104 +800,6 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                         {account.status}
                       </span>
                     )}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-gray-500">
-                        <div className="truncate">{account.lastUpdated}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        {isEditing ? (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={handleSave}
-                              className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
-                              title="保存"
-                            >
-                              <Save className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={handleCancel}
-                              className="p-1 text-red-600 hover:text-red-900 hover:bg-red-100 rounded"
-                              title="取消"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => handleEdit(account)}
-                              className="p-1 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded"
-                              title="编辑"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            {/* Google主MCC添加子MCC管理按钮 */}
-                            {isMain && (
-                              <button
-                                onClick={() => handleAddSubMcc(account)}
-                                className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
-                                title="管理子MCC"
-                              >
-                                <Users className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {/* 分组间间距 */}
-                {groupIndex < googleAdsGroups.length - 1 && (
-                  <tr>
-                    <td colSpan={8} className="h-2"></td>
-                  </tr>
-                )}
-              </React.Fragment>
-            ))}
-            
-            {/* 其他平台原有展示（排除Google Ads） */}
-            {filteredAccounts.filter(account => {
-              const platform = platforms.find(p => p.id === account.platformId);
-              return platform?.type !== 'Google Ads';
-            }).map((account) => {
-              const platform = platforms.find(p => p.id === account.platformId);
-              const isEditing = editingAccount === account.id;
-              
-              return (
-                <tr key={account.id} className={`${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'} border-b border-gray-200`}>
-                  <td className="px-4 py-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {highlightText(platform?.type || '-', appliedSearchKeyword)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    {/* 其他平台账户信息：所有非Google平台账户信息均不可编辑 */}
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 truncate">
-                        {highlightText(account.name, appliedSearchKeyword)}
-                      </div>
-                      <div className="text-sm text-gray-500 truncate">
-                        ID: {highlightText(account.accountId, appliedSearchKeyword)}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    {renderDepartmentTags(account)}
-                  </td>
-                  <td className="px-4 py-4">
-                    {platform && renderDefaultSettingsForm(account, platform)}
-                  </td>
-                  <td className="px-4 py-4">
-                    {renderFGInfo(account)}
-                  </td>
-                  <td className="px-4 py-4">
-                    {/* 其他平台状态编辑：所有非Google平台状态均不可编辑 */}
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {account.status}
-                    </span>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-500">
                     <div className="truncate">{account.lastUpdated}</div>
@@ -929,12 +831,110 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
+                            {/* Google主MCC添加子MCC管理按钮 */}
+                            {isMain && (
+                              <button
+                                onClick={() => handleAddSubMcc(account)}
+                                className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
+                                title="管理子MCC"
+                              >
+                                <Users className="w-4 h-4" />
+                              </button>
+                            )}
                       </div>
                     )}
                   </td>
                 </tr>
               );
             })}
+                {/* 分组间间距 */}
+                {groupIndex < googleAdsGroups.length - 1 && (
+                  <tr>
+                    <td colSpan={8} className="h-2"></td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+            
+            {/* 其他平台原有展示（排除Google Ads） */}
+            {filteredAccounts.filter(account => {
+              const platform = platforms.find(p => p.id === account.platformId);
+              return platform?.type !== 'Google Ads';
+            }).map((account) => {
+              const platform = platforms.find(p => p.id === account.platformId);
+              const isEditing = editingAccount === account.id;
+          
+          return (
+                <tr key={account.id} className={`${isEditing ? 'bg-blue-50' : 'hover:bg-gray-50'} border-b border-gray-200`}>
+                  <td className="px-4 py-4">
+                    <div className="text-sm font-medium text-gray-900">
+                      {highlightText(platform?.type || '-', appliedSearchKeyword)}
+                  </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    {/* 其他平台账户信息：所有非Google平台账户信息均不可编辑 */}
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 truncate">
+                        {highlightText(account.name, appliedSearchKeyword)}
+                      </div>
+                      <div className="text-sm text-gray-500 truncate">
+                        ID: {highlightText(account.accountId, appliedSearchKeyword)}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    {renderDepartmentTags(account)}
+                  </td>
+                  <td className="px-4 py-4">
+                    {platform && renderDefaultSettingsForm(account, platform)}
+                  </td>
+                  <td className="px-4 py-4">
+                    {renderFGInfo(account)}
+                  </td>
+                  <td className="px-4 py-4">
+                    {/* 其他平台状态编辑：所有非Google平台状态均不可编辑 */}
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                      account.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                      {account.status}
+                  </span>
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-500">
+                    <div className="truncate">{account.lastUpdated}</div>
+                  </td>
+                  <td className="px-4 py-4">
+                    {isEditing ? (
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={handleSave}
+                          className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
+                          title="保存"
+                        >
+                          <Save className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="p-1 text-red-600 hover:text-red-900 hover:bg-red-100 rounded"
+                          title="取消"
+                        >
+                          <X className="w-4 h-4" />
+                  </button>
+                </div>
+                    ) : (
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => handleEdit(account)}
+                          className="p-1 text-blue-600 hover:text-blue-900 hover:bg-blue-100 rounded"
+                          title="编辑"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                </div>
+              )}
+                  </td>
+                </tr>
+          );
+        })}
           </tbody>
         </table>
       </div>
@@ -955,10 +955,10 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
             onChange={(e) => setTempSearchKeyword(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-        </div>
+            </div>
         
         {/* 状态筛选 */}
-        <div>
+            <div>
           <select
             value={tempFilterStatus}
             onChange={(e) => setTempFilterStatus(e.target.value)}
@@ -969,7 +969,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
             <option value="Closed">Closed</option>
           </select>
           <div className="text-xs text-gray-500 mt-1">状态</div>
-                  </div>
+            </div>
         
         {/* 媒体类型多选 */}
         <MultiSelect
@@ -991,21 +991,21 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
         
         {/* 筛选和重置按钮 */}
         <div className="flex gap-2">
-                <button
+            <button
             onClick={handleApplyFilters}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Filter className="w-4 h-4" />
             <span>筛选</span>
-                </button>
-          <button
+            </button>
+            <button
             onClick={handleResetFilters}
             className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             重置
-                  </button>
-                </div>
-              </div>
+            </button>
+          </div>
+        </div>
               
       {/* 当前筛选条件显示 */}
       {(appliedFilterStatus !== 'all' || appliedSelectedMediaTypes.length > 0 || appliedSelectedDepartments.length > 0 || appliedSearchKeyword) && (
@@ -1031,8 +1031,8 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
                 搜索: {appliedSearchKeyword}
               </span>
-            )}
-          </div>
+        )}
+      </div>
                 </div>
               )}
             </div>
@@ -1041,7 +1041,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   // 3. 移除视图切换按钮和逻辑，只保留表格
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
           </div>
 
@@ -1081,7 +1081,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="请输入子MCC名称"
                 />
-      </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1094,8 +1094,8 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="请输入子MCC账户ID"
                 />
-              </div>
-
+            </div>
+            
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   选择部门 <span className="text-red-500">*</span>

@@ -93,11 +93,27 @@ export interface MainEntity {
 export interface OperationLog {
   id: string;
   userId: string;
-  action: string;
-  module: 'media' | 'optimizer' | 'entity' | 'facebook';
-  details: string;
+  userName: string;
+  action: 'create' | 'update' | 'delete' | 'refresh' | 'permission_change';
+  module: 'media' | 'optimizer' | 'entity' | 'facebook' | 'system';
+  objectType: 'MediaPlatform' | 'MediaAccount' | 'DefaultSettings' | 'FGInfo' | 'Optimizer' | 'MediaPermission' | 'FacebookBM' | 'FacebookAdAccount' | 'PermissionRelation';
+  objectId: string;
+  objectName: string;
+  objectDetails: {
+    before?: any;
+    after?: any;
+    changes?: Array<{
+      field: string;
+      oldValue: any;
+      newValue: any;
+    }>;
+  };
+  description: string;
   timestamp: string;
-  updated: boolean;
+  ipAddress?: string;
+  userAgent?: string;
+  status: 'success' | 'failed' | 'pending';
+  errorMessage?: string;
 }
 
 export interface FacebookBM {
@@ -207,4 +223,30 @@ export interface PermissionAudit {
   count: number;
   items: string[];
   affectedRelations: string[]; // PermissionRelation IDs
+}
+
+export interface ProductGroup {
+  id: string;
+  name: string;
+  code: string;
+}
+
+export interface BusinessInfo {
+  id: string;
+  productGroup: ProductGroup;
+  tiktokPromotionLink: string;
+  tiktokIndustryId: string;
+}
+
+export interface NotificationConfig {
+  id: string;
+  productGroup: ProductGroup;
+  approvalAM: string[]; // 审批AM（多个）
+  growthManager: string[]; // 增长负责人（多个）
+  teamLead: string[]; // 巴长（多个）
+  accountApprovalPerson: string; // 开户申请审批人（单个）
+  permissionApprovalPerson: string; // 权限申请审批人（单个）
+  balanceNotificationPerson: string[]; // 余额不足通知人（多个）
+  balanceNotificationChannel: string; // 余额不足通知频道（单个）
+  rechargeNotificationPerson: string[]; // 充值申请通知（多个）
 }

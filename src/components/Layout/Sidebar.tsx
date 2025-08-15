@@ -7,7 +7,8 @@ import {
   Activity, 
   Archive,
   ChevronRight,
-  Shield
+  Shield,
+  Package
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -16,10 +17,36 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { id: 'media', name: '媒体信息', icon: Monitor },
-  { id: 'permissions', name: '权限管理', icon: Shield },
-  { id: 'optimizer', name: '优化师管理', icon: Users },
-  { id: 'logs', name: '操作日志', icon: Activity },
+  {
+    id: 'media',
+    label: '媒体信息',
+    icon: Monitor,
+    path: '/media'
+  },
+  {
+    id: 'permissions',
+    label: '权限管理',
+    icon: Shield,
+    path: '/permissions'
+  },
+  {
+    id: 'optimizer',
+    label: '优化师管理',
+    icon: Users,
+    path: '/optimizer'
+  },
+  {
+    id: 'productGroup',
+    label: '产品组管理',
+    icon: Package,
+    path: '/product-group'
+  },
+  {
+    id: 'logs',
+    label: '操作日志',
+    icon: Activity,
+    path: '/logs'
+  }
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onModuleChange }) => {
@@ -47,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onModuleChange }
                 >
                   <div className="flex items-center space-x-3">
                     <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.name}</span>
+                    <span className="font-medium">{item.label}</span>
                   </div>
                   {isActive && <ChevronRight className="w-4 h-4" />}
                 </button>
