@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, Users } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, Users, RefreshCw } from 'lucide-react';
 import { MediaPlatform, MediaAccount, DefaultSettings, FGInfo } from '../../types';
 import { mockMediaPlatforms, mockMediaAccounts } from '../../data/mockData';
+import { RefreshRequestDialog } from '../Common/RefreshRequestDialog';
 
 interface MediaModuleProps {}
 
@@ -128,6 +129,27 @@ const MultiSelect: React.FC<MultiSelectProps> = ({ options, value, onChange, pla
 };
 
 export const MediaModule: React.FC<MediaModuleProps> = () => {
+  // 刷新相关状态
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshSuccess, setRefreshSuccess] = useState(false);
+  const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
+
+  // 处理刷新申请
+  const handleRefreshRequest = (type: string, target: string) => {
+    console.log('刷新申请提交:', { type, target });
+    setIsRefreshing(true);
+    setRefreshSuccess(true);
+    
+    // 模拟刷新过程
+    setTimeout(() => {
+      setIsRefreshing(false);
+      // 3秒后自动隐藏成功提示
+      setTimeout(() => {
+        setRefreshSuccess(false);
+      }, 3000);
+    }, 2000);
+  };
+
   const [platforms] = useState<MediaPlatform[]>(mockMediaPlatforms);
   const [accounts, setAccounts] = useState<MediaAccount[]>(mockMediaAccounts);
   const [activeTab, setActiveTab] = useState<'media'>('media');
@@ -1041,9 +1063,34 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   // 3. 移除视图切换按钮和逻辑，只保留表格
   return (
     <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
+      {/* 成功提示 */}
+      {refreshSuccess && (
+        <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="font-medium text-green-800">提交成功</h4>
+              <p className="text-sm text-green-700">刷新请求已成功提交，系统正在处理中。请前往「操作日志」页面查看处理进度</p>
+            </div>
           </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
+        <button
+          onClick={() => setIsRefreshDialogOpen(true)}
+          disabled={isRefreshing}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span>申请刷新</span>
+        </button>
+      </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {renderFilters()}
@@ -1139,6 +1186,13 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
           </div>
         </div>
       )}
+
+      {/* 刷新申请弹窗 */}
+      <RefreshRequestDialog
+        isOpen={isRefreshDialogOpen}
+        onClose={() => setIsRefreshDialogOpen(false)}
+        onSubmit={handleRefreshRequest}
+      />
     </div>
   );
 };

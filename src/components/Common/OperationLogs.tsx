@@ -20,7 +20,8 @@ import {
   X,
   CheckCircle,
   AlertCircle,
-  Info
+  Info,
+  Bell
 } from 'lucide-react';
 import { OperationLog } from '../../types';
 import { mockOperationLogs } from '../../data/mockData';
@@ -66,8 +67,8 @@ export const OperationLogs: React.FC = () => {
     { value: 'all', label: '所有模块', icon: Settings },
     { value: 'media', label: '媒体信息', icon: Monitor },
     { value: 'optimizer', label: '优化师管理', icon: User },
-    { value: 'facebook', label: 'Facebook账户', icon: Smartphone },
-    { value: 'system', label: '系统管理', icon: Building2 }
+    { value: 'productGroup', label: '产品组管理', icon: Building2 },
+    { value: 'system', label: '系统管理', icon: Settings }
   ];
 
   const actionOptions = [
@@ -76,6 +77,9 @@ export const OperationLogs: React.FC = () => {
     { value: 'update', label: '修改', icon: Edit },
     { value: 'delete', label: '删除', icon: Trash2 },
     { value: 'refresh', label: '刷新', icon: RefreshCw },
+    { value: 'request_refresh', label: '申请刷新', icon: RefreshCw },
+    { value: 'batch_update', label: '批量更新', icon: Edit },
+    { value: 'column_edit', label: '列级编辑', icon: Settings },
     { value: 'permission_change', label: '权限变更', icon: Shield }
   ];
 
@@ -88,7 +92,11 @@ export const OperationLogs: React.FC = () => {
     { value: 'Optimizer', label: '优化师', icon: User },
     { value: 'MediaPermission', label: '媒体权限', icon: Shield },
     { value: 'FacebookBM', label: 'Facebook BM', icon: Smartphone },
-    { value: 'FacebookAdAccount', label: 'Facebook广告账户', icon: Smartphone }
+    { value: 'FacebookAdAccount', label: 'Facebook广告账户', icon: Smartphone },
+    { value: 'ProductGroup', label: '产品组', icon: Building2 },
+    { value: 'BusinessInfo', label: '业务信息', icon: Info },
+    { value: 'NotificationConfig', label: '通知配置', icon: Bell },
+    { value: 'RefreshRequest', label: '刷新申请', icon: RefreshCw }
   ];
 
   const statusOptions = [
@@ -167,7 +175,7 @@ export const OperationLogs: React.FC = () => {
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'optimizer':
         return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'facebook':
+      case 'productGroup':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'system':
         return 'bg-orange-100 text-orange-800 border-orange-200';
@@ -187,6 +195,12 @@ export const OperationLogs: React.FC = () => {
         return 'bg-red-100 text-red-800 border-red-200';
       case 'refresh':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'request_refresh':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'batch_update':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      case 'column_edit':
+        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
       case 'permission_change':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       default:
@@ -219,6 +233,12 @@ export const OperationLogs: React.FC = () => {
         return Trash2;
       case 'refresh':
         return RefreshCw;
+      case 'request_refresh':
+        return RefreshCw;
+      case 'batch_update':
+        return Edit;
+      case 'column_edit':
+        return Settings;
       case 'permission_change':
         return Shield;
       default:
@@ -244,6 +264,14 @@ export const OperationLogs: React.FC = () => {
       case 'FacebookBM':
       case 'FacebookAdAccount':
         return Smartphone;
+      case 'ProductGroup':
+        return Building2;
+      case 'BusinessInfo':
+        return Info;
+      case 'NotificationConfig':
+        return Bell;
+      case 'RefreshRequest':
+        return RefreshCw;
       default:
         return Settings;
     }

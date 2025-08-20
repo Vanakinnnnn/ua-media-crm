@@ -28,42 +28,31 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<{
     growthManager: boolean;
-    teamLead: boolean;
   }>({
-    growthManager: false,
-    teamLead: false
+    growthManager: false
   });
 
   // 初始化选中状态
   React.useEffect(() => {
     if (isOpen) {
       if (isMultiple) {
-        // 多选列：检查整列中是否所有行都包含增长负责人和巴长
+        // 多选列：检查整列中是否所有行都包含增长负责人
         const allRowsHaveGrowthManager = currentData.every(item => {
           const value = item[field];
           const array = Array.isArray(value) ? value : [value];
           return array.some(v => v === '增长负责人');
         });
         
-        const allRowsHaveTeamLead = currentData.every(item => {
-          const value = item[field];
-          const array = Array.isArray(value) ? value : [value];
-          return array.some(v => v === '巴长');
-        });
-        
         setSelectedOptions({
-          growthManager: allRowsHaveGrowthManager,
-          teamLead: allRowsHaveTeamLead
+          growthManager: allRowsHaveGrowthManager
         });
       } else {
         // 单选列：检查当前编辑行的值
         const currentArray = Array.isArray(currentValue) ? currentValue : [currentValue];
         const hasGrowthManager = currentArray.some(item => item === '增长负责人');
-        const hasTeamLead = currentArray.some(item => item === '巴长');
         
         setSelectedOptions({
-          growthManager: hasGrowthManager,
-          teamLead: hasTeamLead
+          growthManager: hasGrowthManager
         });
       }
     }
@@ -78,13 +67,10 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
       // 多选列：追加模式，更新所有行
       result.operation = 'updateAllRows';
       result.growthManager = selectedOptions.growthManager;
-      result.teamLead = selectedOptions.teamLead;
     } else {
       // 单选列：覆盖模式
       if (selectedOptions.growthManager) {
         result.newValue = '增长负责人';
-      } else if (selectedOptions.teamLead) {
-        result.newValue = '巴长';
       } else {
         result.newValue = '';
       }
@@ -92,7 +78,7 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
     
     onApply(field, result);
     onClose();
-    setSelectedOptions({ growthManager: false, teamLead: false });
+    setSelectedOptions({ growthManager: false });
   };
 
   return (
@@ -120,35 +106,13 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
                   } else {
                     setSelectedOptions(prev => ({ 
                       ...prev, 
-                      growthManager: e.target.checked,
-                      teamLead: !e.target.checked,
-                      customEmail: ''
+                      growthManager: e.target.checked
                     }));
                   }
                 }}
                 className="text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm text-gray-900">添加本组增长负责人</span>
-            </label>
-            
-            <label className="flex items-center space-x-3">
-              <input
-                type={isMultiple ? "checkbox" : "radio"}
-                checked={selectedOptions.teamLead}
-                onChange={(e) => {
-                  if (isMultiple) {
-                    setSelectedOptions(prev => ({ ...prev, teamLead: e.target.checked }));
-                  } else {
-                    setSelectedOptions(prev => ({ 
-                      ...prev, 
-                      teamLead: e.target.checked,
-                      growthManager: !e.target.checked
-                    }));
-                  }
-                }}
-                className="text-blue-600 focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-900">添加本组巴长</span>
             </label>
           </div>
         </div>
@@ -192,12 +156,10 @@ export const NotificationTab: React.FC = () => {
     setEditingData({
       approvalAM: [...item.approvalAM],
       growthManager: item.growthManager.length > 0 ? [item.growthManager[0]] : [],
-      teamLead: item.teamLead.length > 0 ? [item.teamLead[0]] : [],
       accountApprovalPerson: item.accountApprovalPerson,
       permissionApprovalPerson: item.permissionApprovalPerson,
       balanceNotificationPerson: [...item.balanceNotificationPerson],
-      balanceNotificationChannel: item.balanceNotificationChannel,
-      rechargeNotificationPerson: [...item.rechargeNotificationPerson]
+      balanceNotificationChannel: item.balanceNotificationChannel
     });
   };
 
@@ -253,18 +215,6 @@ export const NotificationTab: React.FC = () => {
             newArray = newArray.filter(v => v !== '增长负责人');
           }
           
-          // 处理巴长
-          if (data.teamLead && !newArray.includes('巴长')) {
-            newArray.push('巴长');
-          } else if (!data.teamLead && newArray.includes('巴长')) {
-            newArray = newArray.filter(v => v !== '巴长');
-          }
-          
-          // 处理自定义邮箱
-          if (data.customEmail && !newArray.includes(data.customEmail)) {
-            newArray.push(data.customEmail);
-          }
-          
           return {
             ...item,
             [field]: newArray
@@ -284,13 +234,6 @@ export const NotificationTab: React.FC = () => {
             newArray.push('增长负责人');
           } else if (!data.growthManager && newArray.includes('增长负责人')) {
             newArray = newArray.filter(v => v !== '增长负责人');
-          }
-          
-          // 处理巴长
-          if (data.teamLead && !newArray.includes('巴长')) {
-            newArray.push('巴长');
-          } else if (!data.teamLead && newArray.includes('巴长')) {
-            newArray = newArray.filter(v => v !== '巴长');
           }
           
           return { ...prev, [field]: newArray };
@@ -315,10 +258,10 @@ export const NotificationTab: React.FC = () => {
   };
 
   // 为单个单元格添加角色（多选列）
-  const addRoleToMultiCell = (field: keyof NotificationConfig, role: 'growthManager' | 'teamLead') => {
+  const addRoleToMultiCell = (field: keyof NotificationConfig, role: 'growthManager') => {
     if (!editingData) return;
     
-    const roleLabel = role === 'growthManager' ? '增长负责人' : '巴长';
+    const roleLabel = role === 'growthManager' ? '增长负责人' : '';
     const currentValue = editingData[field];
     const currentArray = Array.isArray(currentValue) ? currentValue : [];
     
@@ -329,10 +272,10 @@ export const NotificationTab: React.FC = () => {
   };
 
   // 为单个单元格添加角色（单选列）
-  const addRoleToSingleCell = (field: keyof NotificationConfig, role: 'growthManager' | 'teamLead') => {
+  const addRoleToSingleCell = (field: keyof NotificationConfig, role: 'growthManager') => {
     if (!editingData) return;
     
-    const roleLabel = role === 'growthManager' ? '增长负责人' : '巴长';
+    const roleLabel = role === 'growthManager' ? '增长负责人' : '';
     updateEditingData(field, roleLabel);
   };
 
@@ -349,7 +292,7 @@ export const NotificationTab: React.FC = () => {
 
   // 检查是否为角色标识
   const isRoleLabel = (value: string) => {
-    return value === '增长负责人' || value === '巴长';
+    return value === '增长负责人';
   };
 
   // 渲染角色图标
@@ -359,13 +302,6 @@ export const NotificationTab: React.FC = () => {
         <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
           <Users className="w-3 h-3 mr-1" />
           增长负责人
-        </span>
-      );
-    } else if (value === '巴长') {
-      return (
-        <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-          <UserCheck className="w-3 h-3 mr-1" />
-          巴长
         </span>
       );
     }
@@ -388,9 +324,6 @@ export const NotificationTab: React.FC = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
                   增长负责人
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
-                  巴长
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
                   <div className="flex items-center space-x-2">
@@ -430,18 +363,6 @@ export const NotificationTab: React.FC = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
                   余额不足通知频道
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
-                  <div className="flex items-center space-x-2">
-                    <span>充值申请通知</span>
-                    <button
-                      onClick={() => openColumnEdit('充值申请通知', 'rechargeNotificationPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
                   操作
@@ -498,13 +419,6 @@ export const NotificationTab: React.FC = () => {
                               <Users className="w-3 h-3" />
                               <span>增长负责人</span>
                             </button>
-                            <button
-                              onClick={() => addRoleToMultiCell('approvalAM', 'teamLead')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                            >
-                              <UserCheck className="w-3 h-3" />
-                              <span>巴长</span>
-                            </button>
                           </div>
                         </div>
                       ) : (
@@ -535,23 +449,6 @@ export const NotificationTab: React.FC = () => {
                       )}
                     </td>
 
-                    {/* 巴长 - 单邮箱 */}
-                    <td className="px-6 py-4">
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editingItem.teamLead?.[0] || ''}
-                          onChange={(e) => updateEditingData('teamLead', [e.target.value])}
-                          placeholder="请输入邮箱"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                      ) : (
-                        <div className="text-sm text-gray-900">
-                          {item.teamLead.length > 0 ? item.teamLead[0] : '-'}
-                        </div>
-                      )}
-                    </td>
-
                     {/* 开户申请审批人 */}
                     <td className="px-6 py-4">
                       {isEditing ? (
@@ -570,13 +467,6 @@ export const NotificationTab: React.FC = () => {
                             >
                               <Users className="w-3 h-3" />
                               <span>增长负责人</span>
-                            </button>
-                            <button
-                              onClick={() => addRoleToSingleCell('accountApprovalPerson', 'teamLead')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                            >
-                              <UserCheck className="w-3 h-3" />
-                              <span>巴长</span>
                             </button>
                           </div>
                         </div>
@@ -605,13 +495,6 @@ export const NotificationTab: React.FC = () => {
                             >
                               <Users className="w-3 h-3" />
                               <span>增长负责人</span>
-                            </button>
-                            <button
-                              onClick={() => addRoleToSingleCell('permissionApprovalPerson', 'teamLead')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                            >
-                              <UserCheck className="w-3 h-3" />
-                              <span>巴长</span>
                             </button>
                           </div>
                         </div>
@@ -658,13 +541,6 @@ export const NotificationTab: React.FC = () => {
                               <Users className="w-3 h-3" />
                               <span>增长负责人</span>
                             </button>
-                            <button
-                              onClick={() => addRoleToMultiCell('balanceNotificationPerson', 'teamLead')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                            >
-                              <UserCheck className="w-3 h-3" />
-                              <span>巴长</span>
-                            </button>
                           </div>
                         </div>
                       ) : (
@@ -691,62 +567,6 @@ export const NotificationTab: React.FC = () => {
                       ) : (
                         <div className="text-sm text-gray-900">
                           {item.balanceNotificationChannel || '-'}
-                        </div>
-                      )}
-                    </td>
-
-                    {/* 充值申请通知 */}
-                    <td className="px-6 py-4">
-                      {isEditing ? (
-                        <div className="space-y-2">
-                          {(editingItem.rechargeNotificationPerson || []).map((email, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <div className="flex-1 text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
-                                {isRoleLabel(email) ? renderRoleIcon(email) : email}
-                              </div>
-                              <button
-                                onClick={() => removeEmail('rechargeNotificationPerson', index)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ))}
-                          <input
-                            type="text"
-                            placeholder="输入邮箱后按回车"
-                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                                updateEditingData('rechargeNotificationPerson', [...(editingItem.rechargeNotificationPerson || []), e.currentTarget.value.trim()]);
-                                e.currentTarget.value = '';
-                              }
-                            }}
-                          />
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => addRoleToMultiCell('rechargeNotificationPerson', 'growthManager')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
-                            >
-                              <Users className="w-3 h-3" />
-                              <span>增长负责人</span>
-                            </button>
-                            <button
-                              onClick={() => addRoleToMultiCell('rechargeNotificationPerson', 'teamLead')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-                            >
-                              <UserCheck className="w-3 h-3" />
-                              <span>巴长</span>
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-1">
-                          {item.rechargeNotificationPerson.map((email, index) => (
-                            <div key={index} className="text-sm text-gray-900 bg-gray-50 px-2 py-1 rounded">
-                              {isRoleLabel(email) ? renderRoleIcon(email) : email}
-                            </div>
-                          ))}
                         </div>
                       )}
                     </td>
@@ -801,7 +621,7 @@ export const NotificationTab: React.FC = () => {
         field={columnEditModal.field}
         currentData={notificationConfig}
         currentItemId={editingId || ''}
-        isMultiple={['approvalAM', 'balanceNotificationPerson', 'rechargeNotificationPerson'].includes(columnEditModal.field)}
+        isMultiple={['approvalAM', 'balanceNotificationPerson'].includes(columnEditModal.field)}
         currentValue={editingId ? (editingData[columnEditModal.field] as string | string[] || '') : ''}
         onApply={applyColumnEdit}
       />

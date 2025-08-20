@@ -12,8 +12,9 @@ export const BusinessInfoTab: React.FC = () => {
   const startEditing = (item: BusinessInfo) => {
     setEditingId(item.id);
     setEditingData({
-      tiktokPromotionLink: item.tiktokPromotionLink,
-      tiktokIndustryId: item.tiktokIndustryId
+      facebook: { ...item.facebook },
+      google: { ...item.google },
+      tiktok: { ...item.tiktok }
     });
   };
 
@@ -39,8 +40,14 @@ export const BusinessInfoTab: React.FC = () => {
   };
 
   // 更新编辑数据
-  const updateEditingData = (field: keyof BusinessInfo, value: string) => {
-    setEditingData(prev => ({ ...prev, [field]: value }));
+  const updateEditingData = (platform: 'facebook' | 'google' | 'tiktok', field: string, value: string) => {
+    setEditingData(prev => ({
+      ...prev,
+      [platform]: {
+        ...prev[platform],
+        [field]: value
+      }
+    }));
   };
 
   return (
@@ -55,10 +62,13 @@ export const BusinessInfoTab: React.FC = () => {
                   产品组
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  TikTok Promotion Link
+                  Facebook
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  TikTok Industry ID
+                  Google
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  TikTok
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
@@ -78,36 +88,80 @@ export const BusinessInfoTab: React.FC = () => {
                       </div>
                     </td>
 
-                    {/* TikTok Promotion Link */}
+                    {/* Facebook - 时区 */}
                     <td className="px-6 py-4">
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editingData.tiktokPromotionLink || ''}
-                          onChange={(e) => updateEditingData('tiktokPromotionLink', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="请输入TikTok推广链接"
-                        />
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium text-gray-500">时区</div>
+                          <input
+                            type="text"
+                            value={editingData.facebook?.timezone || ''}
+                            onChange={(e) => updateEditingData('facebook', 'timezone', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="请输入时区"
+                          />
+                        </div>
                       ) : (
-                        <div className="text-sm text-gray-900">
-                          {item.tiktokPromotionLink || '-'}
+                        <div className="space-y-1 text-sm text-gray-900">
+                          <div><strong>时区:</strong> {item.facebook.timezone || '-'}</div>
                         </div>
                       )}
                     </td>
 
-                    {/* TikTok Industry ID */}
+                    {/* Google - 时区 */}
                     <td className="px-6 py-4">
                       {isEditing ? (
-                        <input
-                          type="text"
-                          value={editingData.tiktokIndustryId || ''}
-                          onChange={(e) => updateEditingData('tiktokIndustryId', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="请输入TikTok行业ID"
-                        />
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium text-gray-500">时区</div>
+                          <input
+                            type="text"
+                            value={editingData.google?.timezone || ''}
+                            onChange={(e) => updateEditingData('google', 'timezone', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="请输入时区"
+                          />
+                        </div>
                       ) : (
-                        <div className="text-sm text-gray-900">
-                          {item.tiktokIndustryId || '-'}
+                        <div className="space-y-1 text-sm text-gray-900">
+                          <div><strong>时区:</strong> {item.google.timezone || '-'}</div>
+                        </div>
+                      )}
+                    </td>
+
+                    {/* TikTok - Promotion Link, Industry ID, 时区 */}
+                    <td className="px-6 py-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium text-gray-500">Promotion Link</div>
+                          <input
+                            type="text"
+                            value={editingData.tiktok?.promotionLink || ''}
+                            onChange={(e) => updateEditingData('tiktok', 'promotionLink', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Promotion Link"
+                          />
+                          <div className="text-sm font-medium text-gray-500">Industry ID</div>
+                          <input
+                            type="text"
+                            value={editingData.tiktok?.industryId || ''}
+                            onChange={(e) => updateEditingData('tiktok', 'industryId', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Industry ID"
+                          />
+                          <div className="text-sm font-medium text-gray-500">时区</div>
+                          <input
+                            type="text"
+                            value={editingData.tiktok?.timezone || ''}
+                            onChange={(e) => updateEditingData('tiktok', 'timezone', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="时区"
+                          />
+                        </div>
+                      ) : (
+                        <div className="space-y-1 text-sm text-gray-900">
+                          <div><strong>Promotion Link:</strong> {item.tiktok.promotionLink || '-'}</div>
+                          <div><strong>Industry ID:</strong> {item.tiktok.industryId || '-'}</div>
+                          <div><strong>时区:</strong> {item.tiktok.timezone || '-'}</div>
                         </div>
                       )}
                     </td>

@@ -94,9 +94,9 @@ export interface OperationLog {
   id: string;
   userId: string;
   userName: string;
-  action: 'create' | 'update' | 'delete' | 'refresh' | 'permission_change';
-  module: 'media' | 'optimizer' | 'entity' | 'facebook' | 'system';
-  objectType: 'MediaPlatform' | 'MediaAccount' | 'DefaultSettings' | 'FGInfo' | 'Optimizer' | 'MediaPermission' | 'FacebookBM' | 'FacebookAdAccount' | 'PermissionRelation';
+  action: 'create' | 'update' | 'delete' | 'refresh' | 'permission_change' | 'request_refresh' | 'batch_update' | 'column_edit';
+  module: 'media' | 'optimizer' | 'productGroup' | 'system';
+  objectType: 'MediaPlatform' | 'MediaAccount' | 'DefaultSettings' | 'FGInfo' | 'Optimizer' | 'MediaPermission' | 'FacebookBM' | 'FacebookAdAccount' | 'PermissionRelation' | 'ProductGroup' | 'BusinessInfo' | 'NotificationConfig' | 'RefreshRequest';
   objectId: string;
   objectName: string;
   objectDetails: {
@@ -234,8 +234,17 @@ export interface ProductGroup {
 export interface BusinessInfo {
   id: string;
   productGroup: ProductGroup;
-  tiktokPromotionLink: string;
-  tiktokIndustryId: string;
+  facebook: {
+    timezone: string;
+  };
+  google: {
+    timezone: string;
+  };
+  tiktok: {
+    promotionLink: string;
+    industryId: string;
+    timezone: string;
+  };
 }
 
 export interface NotificationConfig {
@@ -243,10 +252,8 @@ export interface NotificationConfig {
   productGroup: ProductGroup;
   approvalAM: string[]; // 审批AM（多个）
   growthManager: string[]; // 增长负责人（多个）
-  teamLead: string[]; // 巴长（多个）
   accountApprovalPerson: string; // 开户申请审批人（单个）
   permissionApprovalPerson: string; // 权限申请审批人（单个）
   balanceNotificationPerson: string[]; // 余额不足通知人（多个）
   balanceNotificationChannel: string; // 余额不足通知频道（单个）
-  rechargeNotificationPerson: string[]; // 充值申请通知（多个）
 }

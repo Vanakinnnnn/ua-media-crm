@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 
 interface SidebarProps {
-  activeModule: string;
-  onModuleChange: (module: string) => void;
+  activeModule: 'media' | 'permissions' | 'optimizer' | 'productGroup' | 'logs';
+  onModuleChange: (module: 'media' | 'permissions' | 'optimizer' | 'productGroup' | 'logs') => void;
 }
 
 const menuItems = [
@@ -66,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeModule, onModuleChange }
             return (
               <li key={item.id}>
                 <button
-                  onClick={() => onModuleChange(item.id)}
+                  onClick={() => onModuleChange(item.id as 'media' | 'permissions' | 'optimizer' | 'productGroup' | 'logs')}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
                     isActive 
                       ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' 

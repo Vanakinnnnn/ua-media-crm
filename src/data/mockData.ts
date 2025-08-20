@@ -1,5 +1,4 @@
-import { MediaPlatform, MediaAccount, Optimizer, Permission, MainEntity, OperationLog, PermissionRelation, PermissionTemplate, PermissionAudit, ProductGroup, BusinessInfo, NotificationConfig } from '../types';
-import { FacebookBM, FacebookAdAccount } from '../types';
+import { MediaPlatform, MediaAccount, Optimizer, Permission, MainEntity, OperationLog, PermissionRelation, PermissionTemplate, PermissionAudit, ProductGroup, BusinessInfo, NotificationConfig, FacebookBM, FacebookAdAccount } from '../types';
 
 export const mockMediaPlatforms: MediaPlatform[] = [
   {
@@ -679,7 +678,7 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'admin',
     userName: '系统管理员',
     action: 'refresh',
-    module: 'facebook',
+    module: 'system',
     objectType: 'FacebookBM',
     objectId: 'bm-001',
     objectName: 'Facebook Business Manager',
@@ -778,22 +777,135 @@ export const mockOperationLogs: OperationLog[] = [
     id: '8',
     userId: 'admin',
     userName: '系统管理员',
-    action: 'refresh',
+    action: 'request_refresh',
     module: 'system',
-    objectType: 'MediaAccount',
-    objectId: 'all-accounts',
-    objectName: '所有账户',
+    objectType: 'RefreshRequest',
+    objectId: 'refresh-req-001',
+    objectName: '账户管家刷新申请',
     objectDetails: {
-      before: {
-        lastUpdated: '2024-01-24 18:00:00'
-      },
       after: {
-        lastUpdated: '2024-01-25 14:30:00'
+        refreshType: '账户管家',
+        refreshObject: '全部',
+        requestedBy: 'admin',
+        status: 'pending'
       }
     },
     description: '申请账户管家数据刷新',
     timestamp: '2024-01-25 14:30:00',
     ipAddress: '192.168.1.100',
+    status: 'success'
+  },
+  {
+    id: '9',
+    userId: 'wang.wu',
+    userName: '王武',
+    action: 'update',
+    module: 'productGroup',
+    objectType: 'BusinessInfo',
+    objectId: 'business-info-001',
+    objectName: 'F10产品组业务信息',
+    objectDetails: {
+      before: {
+        tiktok: {
+          promotionLink: 'https://tiktok.com/promotion/f10',
+          industryId: 'TIK001',
+          timezone: 'Asia/Singapore'
+        }
+      },
+      after: {
+        tiktok: {
+          promotionLink: 'https://tiktok.com/promotion/f10-new',
+          industryId: 'TIK001',
+          timezone: 'Asia/Singapore'
+        }
+      },
+      changes: [
+        {
+          field: 'tiktok.promotionLink',
+          oldValue: 'https://tiktok.com/promotion/f10',
+          newValue: 'https://tiktok.com/promotion/f10-new'
+        }
+      ]
+    },
+    description: '修改F10产品组TikTok推广链接',
+    timestamp: '2024-01-25 13:45:00',
+    ipAddress: '192.168.1.105',
+    status: 'success'
+  },
+  {
+    id: '10',
+    userId: 'li.si',
+    userName: '李女士',
+    action: 'column_edit',
+    module: 'productGroup',
+    objectType: 'NotificationConfig',
+    objectId: 'notification-config-bulk',
+    objectName: '余额不足通知人',
+    objectDetails: {
+      before: {
+        operation: 'column_edit',
+        field: 'balanceNotificationPerson',
+        affectedRows: ['F10', 'F45', 'F55']
+      },
+      after: {
+        operation: 'column_edit',
+        field: 'balanceNotificationPerson',
+        addedRoles: ['增长负责人'],
+        affectedRows: ['F10', 'F45', 'F55']
+      }
+    },
+    description: '批量添加增长负责人到余额不足通知人列表',
+    timestamp: '2024-01-25 12:20:00',
+    ipAddress: '192.168.1.106',
+    status: 'success'
+  },
+  {
+    id: '11',
+    userId: 'admin',
+    userName: '系统管理员',
+    action: 'request_refresh',
+    module: 'system',
+    objectType: 'RefreshRequest',
+    objectId: 'refresh-req-002',
+    objectName: 'Facebook BM刷新申请',
+    objectDetails: {
+      after: {
+        refreshType: 'Facebook BM Client账户',
+        refreshObject: 'EWP : BM-123456789',
+        requestedBy: 'admin',
+        status: 'pending'
+      }
+    },
+    description: '申请Facebook BM Client账户数据刷新',
+    timestamp: '2024-01-25 11:45:00',
+    ipAddress: '192.168.1.100',
+    status: 'success'
+  },
+  {
+    id: '12',
+    userId: 'zhang.san',
+    userName: '张先生',
+    action: 'batch_update',
+    module: 'optimizer',
+    objectType: 'MediaPermission',
+    objectId: 'batch-permission-001',
+    objectName: '批量权限更新',
+    objectDetails: {
+      before: {
+        affectedOptimizers: ['zhang.san', 'li.si', 'wang.wu'],
+        updatedFields: ['trainingEmail']
+      },
+      after: {
+        affectedOptimizers: ['zhang.san', 'li.si', 'wang.wu'],
+        updatedFields: ['trainingEmail'],
+        newValues: {
+          trainingEmail: 'training@newplatform.com'
+        }
+      }
+    },
+    description: '批量更新优化师培训平台邮箱',
+    timestamp: '2024-01-25 10:30:00',
+    ipAddress: '192.168.1.107',
     status: 'success'
   }
 ];
@@ -1505,68 +1617,167 @@ export const mockBusinessInfo: BusinessInfo[] = [
   {
     id: '1',
     productGroup: mockProductGroups[0],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f10',
-    tiktokIndustryId: 'TIK001'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f10',
+      industryId: 'TIK001',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '2',
     productGroup: mockProductGroups[1],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f45',
-    tiktokIndustryId: 'TIK002'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f45',
+      industryId: 'TIK002',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '3',
     productGroup: mockProductGroups[2],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f55',
-    tiktokIndustryId: 'TIK003'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f55',
+      industryId: 'TIK003',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '4',
     productGroup: mockProductGroups[3],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f60',
-    tiktokIndustryId: 'TIK004'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f60',
+      industryId: 'TIK004',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '5',
     productGroup: mockProductGroups[4],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f75',
-    tiktokIndustryId: 'TIK005'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f75',
+      industryId: 'TIK005',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '6',
     productGroup: mockProductGroups[5],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f89',
-    tiktokIndustryId: 'TIK006'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f89',
+      industryId: 'TIK006',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '7',
     productGroup: mockProductGroups[6],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f919',
-    tiktokIndustryId: 'TIK007'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f919',
+      industryId: 'TIK007',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '8',
     productGroup: mockProductGroups[7],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f41',
-    tiktokIndustryId: 'TIK008'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f41',
+      industryId: 'TIK008',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '9',
     productGroup: mockProductGroups[8],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f42',
-    tiktokIndustryId: 'TIK009'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f42',
+      industryId: 'TIK009',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '10',
     productGroup: mockProductGroups[9],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/f35',
-    tiktokIndustryId: 'TIK010'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/f35',
+      industryId: 'TIK010',
+      timezone: 'Asia/Singapore'
+    }
   },
   {
     id: '11',
     productGroup: mockProductGroups[10],
-    tiktokPromotionLink: 'https://tiktok.com/promotion/ugc',
-    tiktokIndustryId: 'TIK011'
+    facebook: {
+      timezone: 'Asia/Singapore'
+    },
+    google: {
+      timezone: 'Asia/Singapore'
+    },
+    tiktok: {
+      promotionLink: 'https://tiktok.com/promotion/ugc',
+      industryId: 'TIK011',
+      timezone: 'Asia/Singapore'
+    }
   }
 ];
 
@@ -1576,131 +1787,109 @@ export const mockNotificationConfig: NotificationConfig[] = [
     productGroup: mockProductGroups[0],
     approvalAM: ['zhang.san@company.com', 'li.si@company.com'],
     growthManager: ['wang.wu@company.com', 'zhao.liu@company.com'],
-    teamLead: ['sun.qi@company.com'],
     accountApprovalPerson: 'zhang.san@company.com',
     permissionApprovalPerson: 'li.si@company.com',
     balanceNotificationPerson: ['wang.wu@company.com', 'zhao.liu@company.com'],
-    balanceNotificationChannel: '#f10-balance-alert',
-    rechargeNotificationPerson: ['sun.qi@company.com', 'zhang.san@company.com']
+    balanceNotificationChannel: '#f10-balance-alert'
   },
   {
     id: '2',
     productGroup: mockProductGroups[1],
     approvalAM: ['emma.davis@company.com'],
     growthManager: ['john.smith@company.com'],
-    teamLead: ['michael.brown@company.com'],
     accountApprovalPerson: 'emma.davis@company.com',
     permissionApprovalPerson: 'john.smith@company.com',
-    balanceNotificationPerson: ['michael.brown@company.com'],
-    balanceNotificationChannel: '#f45-balance-alert',
-    rechargeNotificationPerson: ['emma.davis@company.com', 'john.smith@company.com']
+    balanceNotificationPerson: ['john.smith@company.com'],
+    balanceNotificationChannel: '#f45-balance-alert'
   },
   {
     id: '3',
     productGroup: mockProductGroups[2],
     approvalAM: ['sarah.wilson@company.com', 'david.miller@company.com'],
     growthManager: ['lisa.anderson@company.com'],
-    teamLead: ['james.taylor@company.com', 'emily.white@company.com'],
     accountApprovalPerson: 'sarah.wilson@company.com',
     permissionApprovalPerson: 'david.miller@company.com',
-    balanceNotificationPerson: ['lisa.anderson@company.com', 'james.taylor@company.com'],
-    balanceNotificationChannel: '#f55-balance-alert',
-    rechargeNotificationPerson: ['emily.white@company.com']
+    balanceNotificationPerson: ['lisa.anderson@company.com'],
+    balanceNotificationChannel: '#f55-balance-alert'
   },
   {
     id: '4',
     productGroup: mockProductGroups[3],
     approvalAM: ['robert.johnson@company.com'],
     growthManager: ['jennifer.garcia@company.com', 'thomas.martinez@company.com'],
-    teamLead: ['christopher.rodriguez@company.com'],
     accountApprovalPerson: 'robert.johnson@company.com',
     permissionApprovalPerson: 'jennifer.garcia@company.com',
     balanceNotificationPerson: ['thomas.martinez@company.com'],
-    balanceNotificationChannel: '#f60-balance-alert',
-    rechargeNotificationPerson: ['christopher.rodriguez@company.com', 'robert.johnson@company.com']
+    balanceNotificationChannel: '#f60-balance-alert'
   },
   {
     id: '5',
     productGroup: mockProductGroups[4],
     approvalAM: ['daniel.lee@company.com', 'ashley.gonzalez@company.com'],
     growthManager: ['matthew.perez@company.com'],
-    teamLead: ['jessica.turner@company.com'],
     accountApprovalPerson: 'daniel.lee@company.com',
     permissionApprovalPerson: 'ashley.gonzalez@company.com',
-    balanceNotificationPerson: ['matthew.perez@company.com', 'jessica.turner@company.com'],
-    balanceNotificationChannel: '#f75-balance-alert',
-    rechargeNotificationPerson: ['daniel.lee@company.com']
+    balanceNotificationPerson: ['matthew.perez@company.com'],
+    balanceNotificationChannel: '#f75-balance-alert'
   },
   {
     id: '6',
     productGroup: mockProductGroups[5],
     approvalAM: ['andrew.campbell@company.com'],
     growthManager: ['nicole.mitchell@company.com', 'kevin.carter@company.com'],
-    teamLead: ['stephanie.roberts@company.com'],
     accountApprovalPerson: 'andrew.campbell@company.com',
     permissionApprovalPerson: 'nicole.mitchell@company.com',
     balanceNotificationPerson: ['kevin.carter@company.com'],
-    balanceNotificationChannel: '#f89-balance-alert',
-    rechargeNotificationPerson: ['stephanie.roberts@company.com', 'andrew.campbell@company.com']
+    balanceNotificationChannel: '#f89-balance-alert'
   },
   {
     id: '7',
     productGroup: mockProductGroups[6],
     approvalAM: ['rachel.phillips@company.com', 'tyler.evans@company.com'],
     growthManager: ['amanda.edwards@company.com'],
-    teamLead: ['brandon.collins@company.com', 'melissa.stewart@company.com'],
     accountApprovalPerson: 'rachel.phillips@company.com',
     permissionApprovalPerson: 'tyler.evans@company.com',
-    balanceNotificationPerson: ['amanda.edwards@company.com', 'brandon.collins@company.com'],
-    balanceNotificationChannel: '#f919-balance-alert',
-    rechargeNotificationPerson: ['melissa.stewart@company.com']
+    balanceNotificationPerson: ['amanda.edwards@company.com'],
+    balanceNotificationChannel: '#f919-balance-alert'
   },
   {
     id: '8',
     productGroup: mockProductGroups[7],
     approvalAM: ['nathan.sanchez@company.com'],
     growthManager: ['samantha.morris@company.com', 'ryan.rogers@company.com'],
-    teamLead: ['lauren.reed@company.com'],
     accountApprovalPerson: 'nathan.sanchez@company.com',
     permissionApprovalPerson: 'samantha.morris@company.com',
     balanceNotificationPerson: ['ryan.rogers@company.com'],
-    balanceNotificationChannel: '#f41-balance-alert',
-    rechargeNotificationPerson: ['lauren.reed@company.com', 'nathan.sanchez@company.com']
+    balanceNotificationChannel: '#f41-balance-alert'
   },
   {
     id: '9',
     productGroup: mockProductGroups[8],
     approvalAM: ['katherine.cook@company.com', 'eric.morgan@company.com'],
     growthManager: ['heather.bell@company.com'],
-    teamLead: ['adam.murphy@company.com'],
     accountApprovalPerson: 'katherine.cook@company.com',
     permissionApprovalPerson: 'eric.morgan@company.com',
-    balanceNotificationPerson: ['heather.bell@company.com', 'adam.murphy@company.com'],
-    balanceNotificationChannel: '#f42-balance-alert',
-    rechargeNotificationPerson: ['katherine.cook@company.com']
+    balanceNotificationPerson: ['heather.bell@company.com'],
+    balanceNotificationChannel: '#f42-balance-alert'
   },
   {
     id: '10',
     productGroup: mockProductGroups[9],
     approvalAM: ['victoria.bailey@company.com'],
     growthManager: ['christopher.rivera@company.com', 'danielle.cooper@company.com'],
-    teamLead: ['patrick.richardson@company.com'],
     accountApprovalPerson: 'victoria.bailey@company.com',
     permissionApprovalPerson: 'christopher.rivera@company.com',
     balanceNotificationPerson: ['danielle.cooper@company.com'],
-    balanceNotificationChannel: '#f35-balance-alert',
-    rechargeNotificationPerson: ['patrick.richardson@company.com', 'victoria.bailey@company.com']
+    balanceNotificationChannel: '#f35-balance-alert'
   },
   {
     id: '11',
     productGroup: mockProductGroups[10],
     approvalAM: ['alexandra.cox@company.com', 'sean.ward@company.com'],
     growthManager: ['rebecca.torres@company.com'],
-    teamLead: ['gregory.peterson@company.com', 'hannah.gray@company.com'],
     accountApprovalPerson: 'alexandra.cox@company.com',
     permissionApprovalPerson: 'sean.ward@company.com',
-    balanceNotificationPerson: ['rebecca.torres@company.com', 'gregory.peterson@company.com'],
-    balanceNotificationChannel: '#ugc-balance-alert',
-    rechargeNotificationPerson: ['hannah.gray@company.com']
+    balanceNotificationPerson: ['rebecca.torres@company.com'],
+    balanceNotificationChannel: '#ugc-balance-alert'
   }
 ];
