@@ -406,7 +406,6 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   const renderDefaultSettingsForm = (account: MediaAccount, platform: MediaPlatform) => {
     const isEditing = editingAccount === account.id;
     const isGoogleAds = platform.type === 'Google Ads';
-    const isTikTok = platform.type === 'TikTok';
     const isMain = !account.parentId;
     const mainAccount = isMain ? null : getMainAccount(account);
     
@@ -457,56 +456,8 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
         </div>
       );
     } else if (platform.type === 'TikTok') {
-      return (
-        <div className="space-y-3 min-w-[200px]">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Industry ID:</label>
-            {/* TikTok BC可以编辑所有账户配置信息 */}
-            {isEditing ? (
-              <input
-                type="text"
-                value={settings.industryId || ''}
-                onChange={(e) => updateDefaultSettings('industryId', e.target.value)}
-                className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            ) : (
-              <p className="text-sm text-gray-900">
-                {highlightText(settings.industryId || '-', appliedSearchKeyword)}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Business Type:</label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={settings.businessType || ''}
-                onChange={(e) => updateDefaultSettings('businessType', e.target.value)}
-                className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            ) : (
-              <p className="text-sm text-gray-900">
-                {highlightText(settings.businessType || '-', appliedSearchKeyword)}
-              </p>
-            )}
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Billing Group ID:</label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={settings.billingGroupId || ''}
-                onChange={(e) => updateDefaultSettings('billingGroupId', e.target.value)}
-                className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            ) : (
-              <p className="text-sm text-gray-900">
-                {highlightText(settings.billingGroupId || '-', appliedSearchKeyword)}
-              </p>
-            )}
-          </div>
-        </div>
-      );
+      // TikTok账户配置列内容全部删除，使用"-"替代
+      return <p className="text-sm text-gray-500">-</p>;
     }
     
     // Facebook、Unity、AppLovin、Moloco等其他媒体：账户配置列为空
