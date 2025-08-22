@@ -34,7 +34,7 @@ function App() {
       <Header />
       <div className="flex">
         <Sidebar activeModule={activeModule} onModuleChange={setActiveModule} />
-        <main className="flex-1">
+        <main className="flex-1 min-w-0 overflow-hidden">
           {renderModule()}
         </main>
       </div>
