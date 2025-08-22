@@ -312,77 +312,81 @@ export const NotificationTab: React.FC = () => {
     <div className="space-y-6">
       {/* 数据表格 */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-                  产品组
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
-                  审批AM
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-32">
-                  增长负责人
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
-                  <div className="flex items-center space-x-2">
-                    <span>开户申请审批人</span>
-                    <button
-                      onClick={() => openColumnEdit('开户申请审批人', 'accountApprovalPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
-                  <div className="flex items-center space-x-2">
-                    <span>权限申请审批人</span>
-                    <button
-                      onClick={() => openColumnEdit('权限申请审批人', 'permissionApprovalPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
-                  <div className="flex items-center space-x-2">
-                    <span>余额不足通知人</span>
-                    <button
-                      onClick={() => openColumnEdit('余额不足通知人', 'balanceNotificationPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-40">
-                  余额不足通知频道
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-24">
-                  操作
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+        {/* 固定列布局容器 */}
+        <div className="relative flex">
+          {/* 左侧固定列：产品组 */}
+          <div className="bg-gray-50 border-r border-gray-200 flex-shrink-0 w-32">
+            <div className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+              产品组
+            </div>
+            {notificationConfig.map((item) => (
+              <div key={`fixed-left-${item.id}`} className="px-4 py-6 border-b border-gray-200 bg-white">
+                <div className="text-sm font-medium text-gray-900">
+                  {item.productGroup.code}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 中间可滚动列 */}
+          <div className="flex-1 overflow-x-auto">
+            <table className="w-full" style={{ minWidth: '800px' }}>
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                    审批AM
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                    增长负责人
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
+                    <div className="flex items-center space-x-2">
+                      <span>开户申请审批人</span>
+                      <button
+                        onClick={() => openColumnEdit('开户申请审批人', 'accountApprovalPerson')}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="编辑整列"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
+                    <div className="flex items-center space-x-2">
+                      <span>权限申请审批人</span>
+                      <button
+                        onClick={() => openColumnEdit('权限申请审批人', 'permissionApprovalPerson')}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="编辑整列"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
+                    <div className="flex items-center space-x-2">
+                      <span>余额不足通知人</span>
+                      <button
+                        onClick={() => openColumnEdit('余额不足通知人', 'balanceNotificationPerson')}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="编辑整列"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                    余额不足通知频道
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
               {notificationConfig.map((item) => {
                 const isEditing = editingId === item.id;
                 const editingItem = editingData;
                 
                 return (
                   <tr key={item.id} className="hover:bg-gray-50">
-                    {/* 产品组 */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {item.productGroup.code}
-                      </div>
-                    </td>
-
                     {/* 审批AM */}
                     <td className="px-6 py-4">
                       {isEditing ? (
@@ -570,43 +574,54 @@ export const NotificationTab: React.FC = () => {
                         </div>
                       )}
                     </td>
-
-                    {/* 操作按钮 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {isEditing ? (
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={saveEditing}
-                            className="text-green-600 hover:text-green-900 transition-colors"
-                            title="保存"
-                          >
-                            <Save className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={cancelEditing}
-                            className="text-gray-600 hover:text-gray-900 transition-colors"
-                            title="取消"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => startEditing(item)}
-                          className="text-blue-600 hover:text-blue-900 transition-colors"
-                          title="编辑"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+
+        {/* 右侧固定列：操作 */}
+        <div className="bg-gray-50 border-l border-gray-200 flex-shrink-0 w-20">
+          <div className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+            操作
+          </div>
+          {notificationConfig.map((item) => {
+            const isEditing = editingId === item.id;
+            return (
+              <div key={`fixed-right-${item.id}`} className="px-4 py-6 border-b border-gray-200 bg-white">
+                {isEditing ? (
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={saveEditing}
+                      className="text-green-600 hover:text-green-900 transition-colors"
+                      title="保存"
+                    >
+                      <Save className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      className="text-gray-600 hover:text-gray-900 transition-colors"
+                      title="取消"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => startEditing(item)}
+                    className="text-blue-600 hover:text-blue-900 transition-colors"
+                    title="编辑"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
+    </div>
 
       {/* 统计信息 */}
       <div className="text-sm text-gray-500 text-center">

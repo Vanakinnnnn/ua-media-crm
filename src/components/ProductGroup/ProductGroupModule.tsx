@@ -6,7 +6,7 @@ export const ProductGroupModule: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'business' | 'notification'>('business');
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-w-full overflow-hidden">
       {/* 页面标题 */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">产品组管理</h2>
