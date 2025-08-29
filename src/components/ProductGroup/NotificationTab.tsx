@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Save, X, Users, UserCheck, Settings } from 'lucide-react';
+import { Edit2, Save, X, Settings } from 'lucide-react';
 import { NotificationConfig } from '../../types';
 import { mockNotificationConfig } from '../../data/mockData';
 
@@ -20,10 +20,10 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
   onClose,
   columnName,
   field,
-  currentData,
-  currentItemId,
+  currentData: _currentData,
+  currentItemId: _currentItemId,
   isMultiple,
-  currentValue,
+  currentValue: _currentValue,
   onApply
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<{
@@ -32,31 +32,17 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
     growthManager: false
   });
 
+
+
   // 初始化选中状态
   React.useEffect(() => {
     if (isOpen) {
-      if (isMultiple) {
-        // 多选列：检查整列中是否所有行都包含增长负责人
-        const allRowsHaveGrowthManager = currentData.every(item => {
-          const value = item[field];
-          const array = Array.isArray(value) ? value : [value];
-          return array.some(v => v === '增长负责人');
-        });
-        
-        setSelectedOptions({
-          growthManager: allRowsHaveGrowthManager
-        });
-      } else {
-        // 单选列：检查当前编辑行的值
-        const currentArray = Array.isArray(currentValue) ? currentValue : [currentValue];
-        const hasGrowthManager = currentArray.some(item => item === '增长负责人');
-        
-        setSelectedOptions({
-          growthManager: hasGrowthManager
-        });
-      }
+      // 默认不勾选，让用户主动选择
+      setSelectedOptions({
+        growthManager: false
+      });
     }
-  }, [isOpen, currentValue, isMultiple, currentData, field]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -68,12 +54,9 @@ const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
       result.operation = 'updateAllRows';
       result.growthManager = selectedOptions.growthManager;
     } else {
-      // 单选列：覆盖模式
-      if (selectedOptions.growthManager) {
-        result.newValue = '增长负责人';
-      } else {
-        result.newValue = '';
-      }
+      // 单选列：覆盖模式，让applyColumnEdit为每一行使用各自的增长负责人
+      result.operation = 'updateAllRowsWithOwnGrowthManager';
+      result.growthManager = selectedOptions.growthManager;
     }
     
     onApply(field, result);
@@ -208,11 +191,17 @@ export const NotificationTab: React.FC = () => {
           const currentArray = Array.isArray(currentValue) ? currentValue : [];
           let newArray = [...currentArray];
           
-          // 处理增长负责人
-          if (data.growthManager && !newArray.includes('增长负责人')) {
-            newArray.push('增长负责人');
-          } else if (!data.growthManager && newArray.includes('增长负责人')) {
-            newArray = newArray.filter(v => v !== '增长负责人');
+          // 处理增长负责人邮箱
+          if (data.growthManager) {
+            // 添加本组的增长负责人邮箱
+            item.growthManager.forEach(gmEmail => {
+              if (!newArray.includes(gmEmail)) {
+                newArray.push(gmEmail);
+              }
+            });
+          } else {
+            // 移除本组的增长负责人邮箱
+            newArray = newArray.filter(email => !item.growthManager.includes(email));
           }
           
           return {
@@ -224,23 +213,61 @@ export const NotificationTab: React.FC = () => {
       
       // 如果当前正在编辑，也更新编辑数据
       if (editingId) {
-        setEditingData(prev => {
-          const currentValue = prev[field];
-          const currentArray = Array.isArray(currentValue) ? currentValue : [];
-          let newArray = [...currentArray];
-          
-          // 处理增长负责人
-          if (data.growthManager && !newArray.includes('增长负责人')) {
-            newArray.push('增长负责人');
-          } else if (!data.growthManager && newArray.includes('增长负责人')) {
-            newArray = newArray.filter(v => v !== '增长负责人');
+        const editingItem = notificationConfig.find(item => item.id === editingId);
+        if (editingItem) {
+          setEditingData(prev => {
+            const currentValue = prev[field];
+            const currentArray = Array.isArray(currentValue) ? currentValue : [];
+            let newArray = [...currentArray];
+            
+            // 处理增长负责人邮箱
+            if (data.growthManager) {
+              // 添加本组的增长负责人邮箱
+              editingItem.growthManager.forEach(gmEmail => {
+                if (!newArray.includes(gmEmail)) {
+                  newArray.push(gmEmail);
+                }
+              });
+            } else {
+              // 移除本组的增长负责人邮箱
+              newArray = newArray.filter(email => !editingItem.growthManager.includes(email));
+            }
+            
+            return { ...prev, [field]: newArray };
+          });
+        }
+      }
+    } else if (data.operation === 'updateAllRowsWithOwnGrowthManager') {
+      // 单选列：为每一行使用各自的增长负责人
+      setNotificationConfig(prev => 
+        prev.map(item => {
+          if (data.growthManager) {
+            // 使用本组第一个增长负责人邮箱
+            return {
+              ...item,
+              [field]: item.growthManager[0] || ''
+            };
+          } else {
+            return {
+              ...item,
+              [field]: ''
+            };
           }
-          
-          return { ...prev, [field]: newArray };
-        });
+        })
+      );
+      
+      // 如果当前正在编辑，也更新编辑数据
+      if (editingId) {
+        const editingItem = notificationConfig.find(item => item.id === editingId);
+        if (editingItem) {
+          setEditingData(prev => ({ 
+            ...prev, 
+            [field]: data.growthManager ? (editingItem.growthManager[0] || '') : ''
+          }));
+        }
       }
     } else {
-      // 单选列：覆盖模式
+      // 单选列：覆盖模式（保留原有逻辑）
       setNotificationConfig(prev => 
         prev.map(item => {
           return {
@@ -257,27 +284,7 @@ export const NotificationTab: React.FC = () => {
     }
   };
 
-  // 为单个单元格添加角色（多选列）
-  const addRoleToMultiCell = (field: keyof NotificationConfig, role: 'growthManager') => {
-    if (!editingData) return;
-    
-    const roleLabel = role === 'growthManager' ? '增长负责人' : '';
-    const currentValue = editingData[field];
-    const currentArray = Array.isArray(currentValue) ? currentValue : [];
-    
-    // 检查是否已经存在该角色
-    if (!currentArray.includes(roleLabel)) {
-      updateEditingData(field, [...currentArray, roleLabel]);
-    }
-  };
 
-  // 为单个单元格添加角色（单选列）
-  const addRoleToSingleCell = (field: keyof NotificationConfig, role: 'growthManager') => {
-    if (!editingData) return;
-    
-    const roleLabel = role === 'growthManager' ? '增长负责人' : '';
-    updateEditingData(field, roleLabel);
-  };
 
   // 删除邮箱
   const removeEmail = (field: keyof NotificationConfig, index: number) => {
@@ -290,22 +297,13 @@ export const NotificationTab: React.FC = () => {
     updateEditingData(field, newEmails);
   };
 
-  // 检查是否为角色标识
-  const isRoleLabel = (value: string) => {
-    return value === '增长负责人';
+  // 简化版本：直接显示邮箱，不再使用角色图标
+  const isRoleLabel = (_value: string) => {
+    return false; // 不再使用角色标识
   };
 
-  // 渲染角色图标
   const renderRoleIcon = (value: string) => {
-    if (value === '增长负责人') {
-      return (
-        <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-          <Users className="w-3 h-3 mr-1" />
-          增长负责人
-        </span>
-      );
-    }
-    return value;
+    return value; // 直接返回值，不渲染图标
   };
 
   return (
@@ -410,15 +408,7 @@ export const NotificationTab: React.FC = () => {
                               }
                             }}
                           />
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => addRoleToMultiCell('approvalAM', 'growthManager')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
-                            >
-                              <Users className="w-3 h-3" />
-                              <span>增长负责人</span>
-                            </button>
-                          </div>
+
                         </div>
                       ) : (
                         <div className="space-y-1">
@@ -459,15 +449,7 @@ export const NotificationTab: React.FC = () => {
                             placeholder="请输入邮箱"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                           />
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => addRoleToSingleCell('accountApprovalPerson', 'growthManager')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
-                            >
-                              <Users className="w-3 h-3" />
-                              <span>增长负责人</span>
-                            </button>
-                          </div>
+
                         </div>
                       ) : (
                         <div className="text-sm text-gray-900">
@@ -487,15 +469,7 @@ export const NotificationTab: React.FC = () => {
                             placeholder="请输入邮箱"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                           />
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => addRoleToSingleCell('permissionApprovalPerson', 'growthManager')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
-                            >
-                              <Users className="w-3 h-3" />
-                              <span>增长负责人</span>
-                            </button>
-                          </div>
+
                         </div>
                       ) : (
                         <div className="text-sm text-gray-900">
@@ -532,15 +506,7 @@ export const NotificationTab: React.FC = () => {
                               }
                             }}
                           />
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => addRoleToMultiCell('balanceNotificationPerson', 'growthManager')}
-                              className="flex items-center space-x-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200"
-                            >
-                              <Users className="w-3 h-3" />
-                              <span>增长负责人</span>
-                            </button>
-                          </div>
+
                         </div>
                       ) : (
                         <div className="space-y-1">
@@ -619,8 +585,8 @@ export const NotificationTab: React.FC = () => {
         columnName={columnEditModal.columnName}
         field={columnEditModal.field}
         currentData={notificationConfig}
-        currentItemId={editingId || ''}
-        isMultiple={['approvalAM', 'balanceNotificationPerson'].includes(columnEditModal.field)}
+        currentItemId={'all'}
+        isMultiple={['balanceNotificationPerson'].includes(columnEditModal.field)}
         currentValue={editingId ? (editingData[columnEditModal.field] as string | string[] || '') : ''}
         onApply={applyColumnEdit}
       />

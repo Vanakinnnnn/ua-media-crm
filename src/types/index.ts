@@ -29,6 +29,7 @@ export interface DefaultSettings {
   industryId?: string;
   businessType?: string;
   billingGroupId?: string;
+  splitBillingMode?: 'ACCOUNT' | 'ADVERTISER'; // 分账模式
   
   // Google Ads specific
   mccType?: 'main' | 'sub';
@@ -92,28 +93,16 @@ export interface MainEntity {
 
 export interface OperationLog {
   id: string;
-  userId: string;
-  userName: string;
-  action: 'create' | 'update' | 'delete' | 'refresh' | 'permission_change' | 'request_refresh' | 'batch_update' | 'column_edit';
-  module: 'media' | 'optimizer' | 'productGroup' | 'system';
-  objectType: 'MediaPlatform' | 'MediaAccount' | 'DefaultSettings' | 'FGInfo' | 'Optimizer' | 'MediaPermission' | 'FacebookBM' | 'FacebookAdAccount' | 'PermissionRelation' | 'ProductGroup' | 'BusinessInfo' | 'NotificationConfig' | 'RefreshRequest';
-  objectId: string;
-  objectName: string;
-  objectDetails: {
-    before?: any;
-    after?: any;
-    changes?: Array<{
-      field: string;
-      oldValue: any;
-      newValue: any;
-    }>;
-  };
-  description: string;
   timestamp: string;
+  userId: string; // 用户邮箱
+  module: '媒体信息' | '优化师管理' | '产品组管理';
+  action: '新增' | '修改' | '删除' | '申请刷新';
+  object: string; // 具体对象名称，如 F35、zhang.san@email.com、Facebook BM、账户管家等
+  attribute: string; // 操作的具体属性，如 余额不足通知人、状态、权限等
+  description?: string;
+  originalValue?: string;
+  newValue?: string;
   ipAddress?: string;
-  userAgent?: string;
-  status: 'success' | 'failed' | 'pending';
-  errorMessage?: string;
 }
 
 export interface FacebookBM {
@@ -231,19 +220,24 @@ export interface ProductGroup {
   code: string;
 }
 
+export interface TimezoneConfig {
+  code: string; // UTC+8, UTC+0
+  location: string; // Asia/Singapore, Asia/Shanghai, Europe/London
+}
+
 export interface BusinessInfo {
   id: string;
   productGroup: ProductGroup;
   facebook: {
-    timezone: string;
+    timezones: TimezoneConfig[];
   };
   google: {
-    timezone: string;
+    timezones: TimezoneConfig[];
   };
   tiktok: {
     promotionLink: string;
     industryId: string;
-    timezone: string;
+    timezones: TimezoneConfig[];
   };
 }
 

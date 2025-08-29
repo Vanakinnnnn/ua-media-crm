@@ -456,8 +456,28 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
         </div>
       );
     } else if (platform.type === 'TikTok') {
-      // TikTok账户配置列内容全部删除，使用"-"替代
-      return <p className="text-sm text-gray-500">-</p>;
+      // TikTok账户配置：分账模式
+      return (
+        <div className="space-y-3 min-w-[150px]">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">分账模式:</label>
+            {isEditing ? (
+              <select
+                value={settings.splitBillingMode || 'ACCOUNT'}
+                onChange={(e) => updateDefaultSettings('splitBillingMode', e.target.value)}
+                className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="ACCOUNT">ACCOUNT</option>
+                <option value="ADVERTISER">ADVERTISER</option>
+              </select>
+            ) : (
+              <p className="text-sm text-gray-900">
+                {highlightText(settings.splitBillingMode || '-', appliedSearchKeyword)}
+              </p>
+            )}
+          </div>
+        </div>
+      );
     }
     
     // Facebook、Unity、AppLovin、Moloco等其他媒体：账户配置列为空

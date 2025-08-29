@@ -203,7 +203,8 @@ export const mockMediaAccounts: MediaAccount[] = [
     defaultSettings: {
       industryId: 'IND-001',
       businessType: 'E-commerce',
-      billingGroupId: 'BG-12345'
+      billingGroupId: 'BG-12345',
+      splitBillingMode: 'ACCOUNT'
     },
     fgInfo: {
       dhId: '12345680',
@@ -590,325 +591,132 @@ export const mockMainEntities: MainEntity[] = [
 export const mockOperationLogs: OperationLog[] = [
   {
     id: '1',
-    userId: 'admin',
-    userName: '系统管理员',
-    action: 'create',
-    module: 'media',
-    objectType: 'MediaAccount',
-    objectId: 'new-account-001',
-    objectName: 'Gaming Division',
-    objectDetails: {
-      after: {
-        name: 'Gaming Division',
-        accountId: 'SUB-001',
-        type: 'sub',
-        company: 'EY PTE. LTD',
-        departments: ['055', '060']
-      }
-    },
-    description: '新增Google Ads子账户',
-    timestamp: '2024-01-25 14:30:00',
-    ipAddress: '192.168.1.100',
-    status: 'success'
+    timestamp: '2025-01-15T10:30:00Z',
+    userId: 'admin001@company.com',
+    module: '媒体信息',
+    action: '新增',
+    object: 'TikTok Test Account',
+    attribute: '分账模式',
+    description: '新增TikTok媒体账户的分账模式配置',
+    originalValue: '',
+    newValue: 'ACCOUNT',
+    ipAddress: '192.168.1.100'
   },
   {
     id: '2',
-    userId: 'zhang.san',
-    userName: '张先生',
-    action: 'update',
-    module: 'optimizer',
-    objectType: 'MediaPermission',
-    objectId: 'permission-001',
-    objectName: 'Google Ads权限',
-    objectDetails: {
-      before: {
-        platform: 'Google Ads',
-        accountManager: 'Main MCC Account',
-        email: 'zhang.san.ads@gmail.com'
-      },
-      after: {
-        platform: 'Google Ads',
-        accountManager: 'Gaming Division',
-        email: 'zhang.san.ads@gmail.com'
-      },
-      changes: [
-        {
-          field: 'accountManager',
-          oldValue: 'Main MCC Account',
-          newValue: 'Gaming Division'
-        }
-      ]
-    },
-    description: '修改Google Ads账户管家权限',
-    timestamp: '2024-01-25 13:15:00',
-    ipAddress: '192.168.1.101',
-    status: 'success'
+    timestamp: '2025-01-15T14:20:00Z',
+    userId: 'zhang.san@company.com',
+    module: '优化师管理',
+    action: '修改',
+    object: 'zhang.san@company.com',
+    attribute: '状态',
+    description: '修改优化师状态',
+    originalValue: 'active',
+    newValue: 'closed',
+    ipAddress: '192.168.1.101'
   },
   {
     id: '3',
-    userId: 'john.smith',
-    userName: 'John Smith',
-    action: 'update',
-    module: 'optimizer',
-    objectType: 'Optimizer',
-    objectId: 'optimizer-002',
-    objectName: 'John Smith',
-    objectDetails: {
-      before: {
-        trainingEmail: 'john.smith.training@oldplatform.com'
-      },
-      after: {
-        trainingEmail: 'john.smith.training@platform.com'
-      },
-      changes: [
-        {
-          field: 'trainingEmail',
-          oldValue: 'john.smith.training@oldplatform.com',
-          newValue: 'john.smith.training@platform.com'
-        }
-      ]
-    },
-    description: '更新培训平台邮箱',
-    timestamp: '2024-01-25 12:00:00',
-    ipAddress: '192.168.1.102',
-    status: 'success'
+    timestamp: '2025-01-14T09:15:00Z',
+    userId: 'li.si@company.com',
+    module: '媒体信息',
+    action: '申请刷新',
+    object: '账户管家',
+    attribute: '全部账户',
+    description: '申请刷新账户管家数据',
+    ipAddress: '192.168.1.102'
   },
   {
     id: '4',
-    userId: 'admin',
-    userName: '系统管理员',
-    action: 'refresh',
-    module: 'system',
-    objectType: 'FacebookBM',
-    objectId: 'bm-001',
-    objectName: 'Facebook Business Manager',
-    objectDetails: {
-      before: {
-        lastUpdated: '2024-01-24 10:00:00'
-      },
-      after: {
-        lastUpdated: '2024-01-25 14:30:00'
-      }
-    },
-    description: '申请Facebook BM数据刷新',
-    timestamp: '2024-01-25 14:30:00',
-    ipAddress: '192.168.1.100',
-    status: 'success'
+    timestamp: '2025-01-13T16:45:00Z',
+    userId: 'wang.wu@company.com',
+    module: '产品组管理',
+    action: '修改',
+    object: 'F10',
+    attribute: '余额不足通知人',
+    description: '添加余额不足通知人',
+    originalValue: '',
+    newValue: 'growth.manager@company.com',
+    ipAddress: '192.168.1.103'
   },
   {
     id: '5',
-    userId: 'li.si',
-    userName: '李女士',
-    action: 'create',
-    module: 'optimizer',
-    objectType: 'MediaPermission',
-    objectId: 'permission-005',
-    objectName: 'TikTok权限',
-    objectDetails: {
-      after: {
-        platform: 'TikTok',
-        email: 'li.si.tiktok@gmail.com'
-      }
-    },
-    description: '新增TikTok平台权限',
-    timestamp: '2024-01-25 11:30:00',
-    ipAddress: '192.168.1.103',
-    status: 'success'
+    timestamp: '2025-01-12T11:30:00Z',
+    userId: 'zhao.liu@company.com',
+    module: '产品组管理',
+    action: '修改',
+    object: 'F35',
+    attribute: 'Facebook时区配置',
+    description: '更新Facebook时区配置',
+    originalValue: 'UTC+8 Asia/Singapore',
+    newValue: 'UTC+8 Asia/Shanghai',
+    ipAddress: '192.168.1.104'
   },
   {
     id: '6',
-    userId: 'admin',
-    userName: '系统管理员',
-    action: 'update',
-    module: 'media',
-    objectType: 'MediaAccount',
-    objectId: 'account-002',
-    objectName: 'E-commerce Division',
-    objectDetails: {
-      before: {
-        departments: ['010']
-      },
-      after: {
-        departments: ['010', '045']
-      },
-      changes: [
-        {
-          field: 'departments',
-          oldValue: ['010'],
-          newValue: ['010', '045']
-        }
-      ]
-    },
-    description: '修改账户所属部门',
-    timestamp: '2024-01-25 10:15:00',
-    ipAddress: '192.168.1.100',
-    status: 'success'
+    timestamp: '2025-01-11T08:20:00Z',
+    userId: 'admin001@company.com',
+    module: '优化师管理',
+    action: '新增',
+    object: 'new.optimizer@company.com',
+    attribute: 'Facebook权限',
+    description: '为优化师添加Facebook权限',
+    originalValue: '',
+    newValue: 'test@fb.com',
+    ipAddress: '192.168.1.105'
   },
   {
     id: '7',
-    userId: 'emma.davis',
-    userName: 'Emma Davis',
-    action: 'update',
-    module: 'optimizer',
-    objectType: 'Optimizer',
-    objectId: 'optimizer-004',
-    objectName: 'Emma Davis',
-    objectDetails: {
-      before: {
-        status: 'active'
-      },
-      after: {
-        status: 'closed'
-      },
-      changes: [
-        {
-          field: 'status',
-          oldValue: 'active',
-          newValue: 'closed'
-        }
-      ]
-    },
-    description: '停用优化师账户',
-    timestamp: '2024-01-25 09:45:00',
-    ipAddress: '192.168.1.104',
-    status: 'success'
+    timestamp: '2025-01-10T15:45:00Z',
+    userId: 'manager@company.com',
+    module: '媒体信息',
+    action: '修改',
+    object: 'Facebook BM Test',
+    attribute: '部门',
+    description: '修改Facebook BM所属部门',
+    originalValue: '010',
+    newValue: '045',
+    ipAddress: '192.168.1.106'
   },
   {
     id: '8',
-    userId: 'admin',
-    userName: '系统管理员',
-    action: 'request_refresh',
-    module: 'system',
-    objectType: 'RefreshRequest',
-    objectId: 'refresh-req-001',
-    objectName: '账户管家刷新申请',
-    objectDetails: {
-      after: {
-        refreshType: '账户管家',
-        refreshObject: '全部',
-        requestedBy: 'admin',
-        status: 'pending'
-      }
-    },
-    description: '申请账户管家数据刷新',
-    timestamp: '2024-01-25 14:30:00',
-    ipAddress: '192.168.1.100',
-    status: 'success'
+    timestamp: '2025-01-09T13:10:00Z',
+    userId: 'test.user@company.com',
+    module: '优化师管理',
+    action: '删除',
+    object: 'old.optimizer@company.com',
+    attribute: 'Google权限',
+    description: '删除优化师的Google权限',
+    originalValue: 'old@google.com',
+    newValue: '',
+    ipAddress: '192.168.1.107'
   },
   {
     id: '9',
-    userId: 'wang.wu',
-    userName: '王武',
-    action: 'update',
-    module: 'productGroup',
-    objectType: 'BusinessInfo',
-    objectId: 'business-info-001',
-    objectName: 'F10产品组业务信息',
-    objectDetails: {
-      before: {
-        tiktok: {
-          promotionLink: 'https://tiktok.com/promotion/f10',
-          industryId: 'TIK001',
-          timezone: 'Asia/Singapore'
-        }
-      },
-      after: {
-        tiktok: {
-          promotionLink: 'https://tiktok.com/promotion/f10-new',
-          industryId: 'TIK001',
-          timezone: 'Asia/Singapore'
-        }
-      },
-      changes: [
-        {
-          field: 'tiktok.promotionLink',
-          oldValue: 'https://tiktok.com/promotion/f10',
-          newValue: 'https://tiktok.com/promotion/f10-new'
-        }
-      ]
-    },
-    description: '修改F10产品组TikTok推广链接',
-    timestamp: '2024-01-25 13:45:00',
-    ipAddress: '192.168.1.105',
-    status: 'success'
+    timestamp: '2025-01-08T12:00:00Z',
+    userId: 'supervisor@company.com',
+    module: '产品组管理',
+    action: '修改',
+    object: 'F45',
+    attribute: 'TikTok推广链接',
+    description: '更新TikTok推广链接',
+    originalValue: 'https://old.link.com',
+    newValue: 'https://new.link.com',
+    ipAddress: '192.168.1.108'
   },
   {
     id: '10',
-    userId: 'li.si',
-    userName: '李女士',
-    action: 'column_edit',
-    module: 'productGroup',
-    objectType: 'NotificationConfig',
-    objectId: 'notification-config-bulk',
-    objectName: '余额不足通知人',
-    objectDetails: {
-      before: {
-        operation: 'column_edit',
-        field: 'balanceNotificationPerson',
-        affectedRows: ['F10', 'F45', 'F55']
-      },
-      after: {
-        operation: 'column_edit',
-        field: 'balanceNotificationPerson',
-        addedRoles: ['增长负责人'],
-        affectedRows: ['F10', 'F45', 'F55']
-      }
-    },
-    description: '批量添加增长负责人到余额不足通知人列表',
-    timestamp: '2024-01-25 12:20:00',
-    ipAddress: '192.168.1.106',
-    status: 'success'
-  },
-  {
-    id: '11',
-    userId: 'admin',
-    userName: '系统管理员',
-    action: 'request_refresh',
-    module: 'system',
-    objectType: 'RefreshRequest',
-    objectId: 'refresh-req-002',
-    objectName: 'Facebook BM刷新申请',
-    objectDetails: {
-      after: {
-        refreshType: 'Facebook BM Client账户',
-        refreshObject: 'EWP : BM-123456789',
-        requestedBy: 'admin',
-        status: 'pending'
-      }
-    },
-    description: '申请Facebook BM Client账户数据刷新',
-    timestamp: '2024-01-25 11:45:00',
-    ipAddress: '192.168.1.100',
-    status: 'success'
-  },
-  {
-    id: '12',
-    userId: 'zhang.san',
-    userName: '张先生',
-    action: 'batch_update',
-    module: 'optimizer',
-    objectType: 'MediaPermission',
-    objectId: 'batch-permission-001',
-    objectName: '批量权限更新',
-    objectDetails: {
-      before: {
-        affectedOptimizers: ['zhang.san', 'li.si', 'wang.wu'],
-        updatedFields: ['trainingEmail']
-      },
-      after: {
-        affectedOptimizers: ['zhang.san', 'li.si', 'wang.wu'],
-        updatedFields: ['trainingEmail'],
-        newValues: {
-          trainingEmail: 'training@newplatform.com'
-        }
-      }
-    },
-    description: '批量更新优化师培训平台邮箱',
-    timestamp: '2024-01-25 10:30:00',
-    ipAddress: '192.168.1.107',
-    status: 'success'
+    timestamp: '2025-01-07T16:30:00Z',
+    userId: 'li.si@company.com',
+    module: '媒体信息',
+    action: '申请刷新',
+    object: 'Test BM : FB-BM-123456',
+    attribute: 'Client 账户',
+    description: '申请刷新指定Facebook BM',
+    ipAddress: '192.168.1.109'
   }
 ];
+
 
 export const mockFacebookBMs: FacebookBM[] = [
   {
@@ -1616,167 +1424,242 @@ export const mockProductGroups: ProductGroup[] = [
 export const mockBusinessInfo: BusinessInfo[] = [
   {
     id: '1',
-    productGroup: mockProductGroups[0],
+    productGroup: mockProductGroups[0], // F10
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f10',
       industryId: 'TIK001',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '2',
-    productGroup: mockProductGroups[1],
+    productGroup: mockProductGroups[1], // F45
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f45',
       industryId: 'TIK002',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '3',
-    productGroup: mockProductGroups[2],
+    productGroup: mockProductGroups[2], // F55
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f55',
       industryId: 'TIK003',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '4',
-    productGroup: mockProductGroups[3],
+    productGroup: mockProductGroups[3], // F60
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f60',
       industryId: 'TIK004',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '5',
-    productGroup: mockProductGroups[4],
+    productGroup: mockProductGroups[4], // F75
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f75',
       industryId: 'TIK005',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '6',
-    productGroup: mockProductGroups[5],
+    productGroup: mockProductGroups[5], // F89
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f89',
       industryId: 'TIK006',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '7',
-    productGroup: mockProductGroups[6],
+    productGroup: mockProductGroups[6], // F919
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f919',
       industryId: 'TIK007',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Singapore' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '8',
-    productGroup: mockProductGroups[7],
+    productGroup: mockProductGroups[7], // F41 - 使用Shanghai
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f41',
       industryId: 'TIK008',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '9',
-    productGroup: mockProductGroups[8],
+    productGroup: mockProductGroups[8], // F42 - 使用Shanghai
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f42',
       industryId: 'TIK009',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   },
   {
     id: '10',
-    productGroup: mockProductGroups[9],
+    productGroup: mockProductGroups[9], // F35 - 使用Shanghai
     facebook: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     google: {
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     },
     tiktok: {
       promotionLink: 'https://tiktok.com/promotion/f35',
       industryId: 'TIK010',
-      timezone: 'Asia/Singapore'
-    }
-  },
-  {
-    id: '11',
-    productGroup: mockProductGroups[10],
-    facebook: {
-      timezone: 'Asia/Singapore'
-    },
-    google: {
-      timezone: 'Asia/Singapore'
-    },
-    tiktok: {
-      promotionLink: 'https://tiktok.com/promotion/ugc',
-      industryId: 'TIK011',
-      timezone: 'Asia/Singapore'
+      timezones: [
+        { code: 'UTC+8', location: 'Asia/Shanghai' },
+        { code: 'UTC+0', location: 'Europe/London' }
+      ]
     }
   }
 ];
