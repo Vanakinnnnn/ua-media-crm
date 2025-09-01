@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, Users, RefreshCw } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, Users, RefreshCw, History } from 'lucide-react';
 import { MediaPlatform, MediaAccount, DefaultSettings, FGInfo } from '../../types';
 import { mockMediaPlatforms, mockMediaAccounts } from '../../data/mockData';
 import { RefreshRequestDialog } from '../Common/RefreshRequestDialog';
+import RefreshRecords from '../Common/RefreshRecords';
 
 interface MediaModuleProps {}
 
@@ -133,6 +134,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshSuccess, setRefreshSuccess] = useState(false);
   const [isRefreshDialogOpen, setIsRefreshDialogOpen] = useState(false);
+  const [isRefreshRecordsOpen, setIsRefreshRecordsOpen] = useState(false);
 
   // 处理刷新申请
   const handleRefreshRequest = (type: string, target: string) => {
@@ -911,8 +913,8 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                           title="取消"
                         >
                           <X className="w-4 h-4" />
-                  </button>
-                </div>
+                        </button>
+                      </div>
                     ) : (
                       <div className="flex items-center space-x-1">
                         <button
@@ -922,12 +924,12 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                </div>
-              )}
+                      </div>
+                    )}
                   </td>
                 </tr>
-          );
-        })}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -962,7 +964,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
             <option value="Closed">Closed</option>
           </select>
           <div className="text-xs text-gray-500 mt-1">状态</div>
-            </div>
+                  </div>
         
         {/* 媒体类型多选 */}
         <MultiSelect
@@ -990,15 +992,15 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
           >
             <Filter className="w-4 h-4" />
             <span>筛选</span>
-            </button>
+                </button>
             <button
             onClick={handleResetFilters}
             className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             重置
-            </button>
-          </div>
-        </div>
+                  </button>
+                </div>
+              </div>
               
       {/* 当前筛选条件显示 */}
       {(appliedFilterStatus !== 'all' || appliedSelectedMediaTypes.length > 0 || appliedSelectedDepartments.length > 0 || appliedSearchKeyword) && (
@@ -1050,18 +1052,27 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
           </div>
         </div>
       )}
-
+      
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
-        <button
-          onClick={() => setIsRefreshDialogOpen(true)}
-          disabled={isRefreshing}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          <span>申请刷新</span>
-        </button>
-      </div>
+          <h2 className="text-2xl font-bold text-gray-900">媒体信息管理</h2>
+        <div className="flex items-center space-x-3">
+            <button
+            onClick={() => setIsRefreshRecordsOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <History className="w-4 h-4" />
+            <span>刷新记录</span>
+            </button>
+            <button
+            onClick={() => setIsRefreshDialogOpen(true)}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>申请刷新</span>
+            </button>
+          </div>
+        </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {renderFilters()}
@@ -1099,7 +1110,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="请输入子MCC名称"
                 />
-              </div>
+      </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1112,7 +1123,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="请输入子MCC账户ID"
                 />
-            </div>
+              </div>
             
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1163,6 +1174,12 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
         isOpen={isRefreshDialogOpen}
         onClose={() => setIsRefreshDialogOpen(false)}
         onSubmit={handleRefreshRequest}
+      />
+
+      {/* 刷新记录弹窗 */}
+      <RefreshRecords
+        isOpen={isRefreshRecordsOpen}
+        onClose={() => setIsRefreshRecordsOpen(false)}
       />
     </div>
   );

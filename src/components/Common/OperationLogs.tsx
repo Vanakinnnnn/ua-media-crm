@@ -50,8 +50,7 @@ export const OperationLogs: React.FC = () => {
     { value: 'all', label: '所有操作', icon: Settings },
     { value: '新增', label: '新增', icon: Plus },
     { value: '修改', label: '修改', icon: Edit },
-    { value: '删除', label: '删除', icon: Trash2 },
-    { value: '申请刷新', label: '申请刷新', icon: RefreshCw }
+    { value: '删除', label: '删除', icon: Trash2 }
   ];
 
 
@@ -131,8 +130,6 @@ export const OperationLogs: React.FC = () => {
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case '删除':
         return 'bg-red-100 text-red-800 border-red-200';
-      case '申请刷新':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -149,8 +146,6 @@ export const OperationLogs: React.FC = () => {
         return Edit;
       case '删除':
         return Trash2;
-      case '申请刷新':
-        return RefreshCw;
       default:
         return Settings;
     }
@@ -339,6 +334,12 @@ export const OperationLogs: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   属性
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  原值
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  新值
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -389,6 +390,16 @@ export const OperationLogs: React.FC = () => {
                           <AttributeIcon className="w-4 h-4 text-gray-400" />
                           <span className="text-sm text-gray-900">{log.attribute}</span>
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-600 bg-red-50 px-2 py-1 rounded">
+                          {log.originalValue || '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-gray-600 bg-green-50 px-2 py-1 rounded">
+                          {log.newValue || '-'}
+                        </span>
                       </td>
                 </tr>
                 );

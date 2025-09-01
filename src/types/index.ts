@@ -96,12 +96,12 @@ export interface OperationLog {
   timestamp: string;
   userId: string; // 用户邮箱
   module: '媒体信息' | '优化师管理' | '产品组管理';
-  action: '新增' | '修改' | '删除' | '申请刷新';
-  object: string; // 具体对象名称，如 F35、zhang.san@email.com、Facebook BM、账户管家等
+  action: '新增' | '修改' | '删除';
+  object: string; // 具体对象名称，如 F35、zhang.san@email.com、Facebook BM等
   attribute: string; // 操作的具体属性，如 余额不足通知人、状态、权限等
+  originalValue: string; // 原值
+  newValue: string; // 新值
   description?: string;
-  originalValue?: string;
-  newValue?: string;
   ipAddress?: string;
 }
 
@@ -111,6 +111,23 @@ export interface FacebookBM {
   bmId: string;
   adAccounts: FacebookAdAccount[];
   lastUpdated: string;
+}
+
+export interface RefreshRecord {
+  id: string;
+  submitTime: string; // 提交时间
+  updateTime: string; // 更新时间
+  applicant: string; // 申请人邮箱
+  refreshType: '账户管家' | 'Facebook BM Client账户';
+  refreshTarget: string; // 刷新对象
+  status: '执行中' | '成功' | '失败';
+  results?: {
+    added?: string[]; // 新增的账户/对象
+    removed?: string[]; // 减少的账户/对象
+    unchanged?: number; // 未变更的数量
+  };
+  errorMessage?: string; // 失败时的错误信息
+  duration?: number; // 执行时长（秒）
 }
 
 export interface FacebookAdAccount {

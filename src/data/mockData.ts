@@ -1,4 +1,4 @@
-import { MediaPlatform, MediaAccount, Optimizer, Permission, MainEntity, OperationLog, PermissionRelation, PermissionTemplate, PermissionAudit, ProductGroup, BusinessInfo, NotificationConfig, FacebookBM, FacebookAdAccount } from '../types';
+import { MediaPlatform, MediaAccount, Optimizer, Permission, MainEntity, OperationLog, PermissionRelation, PermissionTemplate, PermissionAudit, ProductGroup, BusinessInfo, NotificationConfig, FacebookBM, FacebookAdAccount, RefreshRecord } from '../types';
 
 export const mockMediaPlatforms: MediaPlatform[] = [
   {
@@ -620,10 +620,12 @@ export const mockOperationLogs: OperationLog[] = [
     timestamp: '2025-01-14T09:15:00Z',
     userId: 'li.si@company.com',
     module: '媒体信息',
-    action: '申请刷新',
-    object: '账户管家',
-    attribute: '全部账户',
-    description: '申请刷新账户管家数据',
+    action: '修改',
+    object: 'Google主MCC账户',
+    attribute: 'Payment Profile ID',
+    description: '更新Google主MCC的Payment Profile ID',
+    originalValue: 'PAY-12345',
+    newValue: 'PAY-67890',
     ipAddress: '192.168.1.102'
   },
   {
@@ -708,15 +710,115 @@ export const mockOperationLogs: OperationLog[] = [
     id: '10',
     timestamp: '2025-01-07T16:30:00Z',
     userId: 'li.si@company.com',
-    module: '媒体信息',
-    action: '申请刷新',
-    object: 'Test BM : FB-BM-123456',
-    attribute: 'Client 账户',
-    description: '申请刷新指定Facebook BM',
+    module: '优化师管理',
+    action: '新增',
+    object: 'li.si@company.com',
+    attribute: 'Facebook权限',
+    description: '为优化师添加Facebook媒体权限',
+    originalValue: '',
+    newValue: 'Facebook Business Manager Access',
     ipAddress: '192.168.1.109'
   }
 ];
 
+export const mockRefreshRecords: RefreshRecord[] = [
+  {
+    id: 'RF001',
+    submitTime: '2025-01-15T09:30:00Z',
+    updateTime: '2025-01-15T09:31:15Z',
+    applicant: 'admin001@company.com',
+    refreshType: '账户管家',
+    refreshTarget: '全部',
+    status: '成功',
+    results: {
+      added: ['Google Ads - New Account 1', 'TikTok - Test Account 2'],
+      removed: ['Facebook - Closed Account'],
+      unchanged: 25
+    },
+    duration: 45
+  },
+  {
+    id: 'RF002',
+    submitTime: '2025-01-14T14:20:00Z',
+    updateTime: '2025-01-14T14:20:32Z',
+    applicant: 'zhang.san@company.com',
+    refreshType: 'Facebook BM Client账户',
+    refreshTarget: 'EWP : BM-123456789',
+    status: '成功',
+    results: {
+      added: ['Client Account 001', 'Client Account 002'],
+      removed: [],
+      unchanged: 8
+    },
+    duration: 12
+  },
+  {
+    id: 'RF003',
+    submitTime: '2025-01-13T16:45:00Z',
+    updateTime: '2025-01-13T16:45:30Z',
+    applicant: 'li.si@company.com',
+    refreshType: '账户管家',
+    refreshTarget: '全部',
+    status: '失败',
+    errorMessage: 'FG接口连接超时，请稍后重试',
+    duration: 30
+  },
+  {
+    id: 'RF004',
+    submitTime: '2025-01-12T11:15:00Z',
+    updateTime: '2025-01-12T11:15:00Z',
+    applicant: 'wang.wu@company.com',
+    refreshType: 'Facebook BM Client账户',
+    refreshTarget: 'Test BM : FB-BM-789456123',
+    status: '执行中',
+    duration: 0
+  },
+  {
+    id: 'RF005',
+    submitTime: '2025-01-11T08:30:00Z',
+    updateTime: '2025-01-11T08:31:08Z',
+    applicant: 'admin001@company.com',
+    refreshType: '账户管家',
+    refreshTarget: '全部',
+    status: '成功',
+    results: {
+      added: ['AppLovin - New Campaign Account'],
+      removed: ['Unity - Deprecated Account', 'Moloco - Test Account'],
+      unchanged: 23
+    },
+    duration: 38
+  },
+  {
+    id: 'RF006',
+    submitTime: '2025-01-10T15:45:00Z',
+    updateTime: '2025-01-10T15:45:25Z',
+    applicant: 'chen.liu@company.com',
+    refreshType: 'Facebook BM Client账户',
+    refreshTarget: 'Test BM : FB-BM-987654321',
+    status: '成功',
+    results: {
+      added: [],
+      removed: ['Deprecated Client 001'],
+      unchanged: 5
+    },
+    duration: 25
+  },
+  {
+    id: 'RF007',
+    submitTime: '2025-01-09T10:20:00Z',
+    updateTime: '2025-01-09T10:22:15Z',
+    applicant: 'zhao.wu@company.com',
+    refreshType: '账户管家',
+    refreshTarget: '全部',
+    status: '成功',
+    results: {
+      added: ['Moloco - Campaign Account 3', 'Unity - Production Account'],
+      removed: [],
+      unchanged: 27
+    },
+    duration: 135
+  }
+];
 
 export const mockFacebookBMs: FacebookBM[] = [
   {
