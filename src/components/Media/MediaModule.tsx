@@ -153,7 +153,12 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   };
 
   const [platforms] = useState<MediaPlatform[]>(mockMediaPlatforms);
-  const [accounts, setAccounts] = useState<MediaAccount[]>(mockMediaAccounts);
+  const [accounts, setAccounts] = useState<MediaAccount[]>([]);
+  
+  // 初始化accounts数据，确保包含最新的mock数据
+  useEffect(() => {
+    setAccounts(mockMediaAccounts);
+  }, []);
   const [activeTab, setActiveTab] = useState<'media'>('media');
   
   // Google子MCC管理状态
