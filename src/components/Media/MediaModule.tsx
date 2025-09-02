@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, Users, RefreshCw, History } from 'lucide-react';
+import { Plus, Search, Filter, Edit, Trash2, ChevronDown, ChevronRight, Save, X, Table, TreePine, Check, RefreshCw, History } from 'lucide-react';
 import { MediaPlatform, MediaAccount, DefaultSettings, FGInfo } from '../../types';
 import { mockMediaPlatforms, mockMediaAccounts } from '../../data/mockData';
 import { RefreshRequestDialog } from '../Common/RefreshRequestDialog';
@@ -831,9 +831,9 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
                               <button
                                 onClick={() => handleAddSubMcc(account)}
                                 className="p-1 text-green-600 hover:text-green-900 hover:bg-green-100 rounded"
-                                title="管理子MCC"
+                                title="添加子MCC"
                               >
-                                <Users className="w-4 h-4" />
+                                <Plus className="w-4 h-4" />
                               </button>
                             )}
                       </div>
