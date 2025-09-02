@@ -540,6 +540,77 @@ export const mockOptimizers: Optimizer[] = [
     ],
     createdAt: '2024-01-10',
     lastUpdated: '2024-01-23 10:20:00'
+  },
+
+  // 刚从接口同步的示例数据 - 展示需要人工补全的状态
+  
+  // 1. 没有子MCC的谷歌主MCC (需要添加子MCC)
+  {
+    id: '100',
+    platformId: '2',
+    name: 'New Synced Main MCC',
+    accountId: 'MCC-SYNC-001',
+    type: 'mcc',
+    status: 'Active',
+    company: 'Newly Synced Corp',
+    departments: [], // 空的，因为还没有子MCC
+    defaultSettings: {
+      mccType: 'main',
+      mainMccId: 'MCC-SYNC-001',
+      paymentProfileId: '' // 需要人工补全
+    },
+    fgInfo: {
+      dhId: '99999901',
+      environment: 'SG'
+    },
+    createdAt: '2025-01-16',
+    lastUpdated: '2025-01-16 09:00:00',
+    optimizers: []
+  },
+
+  // 2. 未选择分账模式的TikTok BC (需要选择分账模式)
+  {
+    id: '101',
+    platformId: '1',
+    name: 'New TikTok BC Account',
+    accountId: 'TT-SYNC-999888777',
+    type: 'main',
+    status: 'Active',
+    company: 'TikTok Sync Corp',
+    departments: [], // 空的，需要人工选择
+    defaultSettings: {
+      industryId: 'IND-999',
+      businessType: 'Media & Entertainment',
+      billingGroupId: 'BG-99999',
+      splitBillingMode: '' // 未选择，需要人工补全
+    },
+    fgInfo: {
+      dhId: '99999902',
+      environment: 'US'
+    },
+    createdAt: '2025-01-16',
+    lastUpdated: '2025-01-16 09:15:00',
+    optimizers: []
+  },
+
+  // 3. 未配置产品组的Facebook BM (需要配置相关信息)
+  {
+    id: '102',
+    platformId: '4',
+    name: 'New Facebook BM',
+    accountId: 'FB-BM-SYNC123456',
+    type: 'main',
+    status: 'Active',
+    company: 'Facebook Sync Ltd',
+    departments: [], // 空的，需要人工选择
+    defaultSettings: {}, // 空的默认设置
+    fgInfo: {
+      dhId: '99999903',
+      environment: 'EU'
+    },
+    createdAt: '2025-01-16',
+    lastUpdated: '2025-01-16 09:30:00',
+    optimizers: []
   }
 ];
 
