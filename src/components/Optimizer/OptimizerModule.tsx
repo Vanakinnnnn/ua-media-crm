@@ -32,7 +32,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = () => {
   const [permissionForm, setPermissionForm] = useState<MediaPermission[]>([]);
   const [expandedPermissions, setExpandedPermissions] = useState<Set<string>>(new Set());
 
-  const departmentOptions = ['010', '045', '055', '060', '919'];
+  const departmentOptions = ['010', '045', '055', '060', '075', '089', '919', '041', '042', '035'];
   const platformOptions = ['Google Ads', 'Facebook', 'TikTok', 'AppLovin', 'Unity', 'Moloco'];
   const statusOptions = [
     { value: 'all', label: '全部' },
@@ -224,7 +224,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = () => {
       // 权限部门筛选 (AND逻辑：必须包含所有选中的部门)
       if (appliedFilters.permissionDepartments.length > 0) {
         const hasAllPermissionDepartments = appliedFilters.permissionDepartments.every(dept => 
-          optimizer.permissionDepartments.includes(dept as '010' | '045' | '055' | '060' | '919')
+          optimizer.permissionDepartments.includes(dept as '010' | '045' | '055' | '060' | '075' | '089' | '919' | '041' | '042' | '035')
         );
         if (!hasAllPermissionDepartments) {
           return false;

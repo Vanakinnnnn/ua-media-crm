@@ -104,7 +104,7 @@ const PermissionModule: React.FC = () => {
   });
 
   const platformOptions = ['Google Ads', 'Facebook', 'TikTok', 'Unity', 'Applovin', 'Moloco'];
-  const departmentOptions = ['010', '045', '055', '060', '919'];
+  const departmentOptions = ['010', '045', '055', '060', '075', '089', '919', '041', '042', '035'];
   const optimizerStatusOptions = ['Active', 'Inactive'];
 
   // 应用筛选

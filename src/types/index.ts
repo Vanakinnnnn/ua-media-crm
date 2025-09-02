@@ -50,8 +50,8 @@ export interface Optimizer {
   internalEmail: string;
   externalEmail?: string;
   trainingEmail: string;
-  organizationDepartment: '010' | '045' | '055' | '060' | '919';
-  permissionDepartments: ('010' | '045' | '055' | '060' | '919')[];
+  organizationDepartment: '010' | '045' | '055' | '060' | '075' | '089' | '919' | '041' | '042' | '035';
+  permissionDepartments: ('010' | '045' | '055' | '060' | '075' | '089' | '919' | '041' | '042' | '035')[];
   position: string;
   status: 'active' | 'closed';
   mediaPermissions: MediaPermission[];

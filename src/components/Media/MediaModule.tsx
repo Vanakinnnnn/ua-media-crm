@@ -184,7 +184,7 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   const [editingAccount, setEditingAccount] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<MediaAccount>>({});
 
-  const departmentOptions = ['010', '045', '055', '060', '919'];
+  const departmentOptions = ['010', '045', '055', '060', '075', '089', '919', '041', '042', '035'];
   const mediaTypeOptions = ['Facebook', 'Google Ads', 'TikTok', 'Applovin', 'Unity', 'Moloco'];
 
   // 搜索字段定义
