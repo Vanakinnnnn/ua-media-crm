@@ -157,6 +157,8 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
   
   // 初始化accounts数据，确保包含最新的mock数据
   useEffect(() => {
+    console.log('Loading mock accounts, total count:', mockMediaAccounts.length);
+    console.log('New sync examples (IDs 100-102):', mockMediaAccounts.filter(acc => ['100', '101', '102'].includes(acc.id)));
     setAccounts(mockMediaAccounts);
   }, []);
   const [activeTab, setActiveTab] = useState<'media'>('media');
@@ -247,19 +249,36 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
 
   // 筛选逻辑（使用已应用的筛选条件）
   const filteredAccounts = useMemo(() => {
-    return accounts.filter(account => {
+    console.log('Filtering accounts. Total accounts:', accounts.length);
+    console.log('Applied filters:', {
+      status: appliedFilterStatus,
+      mediaTypes: appliedSelectedMediaTypes,
+      departments: appliedSelectedDepartments,
+      keyword: appliedSearchKeyword
+    });
+    
+    const filtered = accounts.filter(account => {
       const platform = platforms.find(p => p.id === account.platformId);
       
       // 状态筛选
-      if (appliedFilterStatus !== 'all' && account.status !== appliedFilterStatus) return false;
+      if (appliedFilterStatus !== 'all' && account.status !== appliedFilterStatus) {
+        console.log(`Account ${account.id} filtered out by status: ${account.status} vs ${appliedFilterStatus}`);
+        return false;
+      }
       
       // 媒体类型筛选
-      if (appliedSelectedMediaTypes.length > 0 && !appliedSelectedMediaTypes.includes(platform?.type || '')) return false;
+      if (appliedSelectedMediaTypes.length > 0 && !appliedSelectedMediaTypes.includes(platform?.type || '')) {
+        console.log(`Account ${account.id} filtered out by media type: ${platform?.type} not in [${appliedSelectedMediaTypes.join(', ')}]`);
+        return false;
+      }
       
       // 部门筛选
       if (appliedSelectedDepartments.length > 0) {
         const hasMatchingDept = account.departments.some(dept => appliedSelectedDepartments.includes(dept));
-        if (!hasMatchingDept) return false;
+        if (!hasMatchingDept) {
+          console.log(`Account ${account.id} filtered out by departments: [${account.departments.join(', ')}] doesn't match [${appliedSelectedDepartments.join(', ')}]`);
+          return false;
+        }
       }
       
       // 关键词搜索
@@ -282,6 +301,11 @@ export const MediaModule: React.FC<MediaModuleProps> = () => {
       
       return true;
     });
+    
+    console.log('Filtered accounts result:', filtered.length, 'out of', accounts.length);
+    console.log('Filtered account IDs:', filtered.map(acc => acc.id));
+    
+    return filtered;
   }, [accounts, platforms, appliedFilterStatus, appliedSelectedMediaTypes, appliedSelectedDepartments, appliedSearchKeyword]);
 
   const togglePlatform = (platformId: string) => {
