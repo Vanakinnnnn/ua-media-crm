@@ -361,6 +361,53 @@ export const mockMediaAccounts: MediaAccount[] = [
     createdAt: '2024-01-23',
     lastUpdated: '2024-01-26 10:50:00',
     optimizers: ['4', '6']
+  },
+  // Google主MCC示例账户（无子MCC，无部门）
+  {
+    id: '19',
+    platformId: '2',
+    name: 'Example Google MCC',
+    accountId: 'MCC-EXAMPLE-001',
+    type: 'mcc',
+    status: 'Active',
+    company: 'Example Company Ltd',
+    departments: [], // 暂时不选择部门
+    defaultSettings: {
+      mccType: 'main',
+      mainMccId: 'MCC-EXAMPLE-001'
+      // 暂时不添加paymentProfileId
+    },
+    fgInfo: {
+      dhId: '12345689',
+      environment: 'SG'
+    },
+    createdAt: '2024-01-26',
+    lastUpdated: '2024-01-26 15:30:00',
+    optimizers: []
+  },
+  // TikTok示例账户（无部门，无分账模式）
+  {
+    id: '20',
+    platformId: '1',
+    name: 'Example TikTok BC',
+    accountId: 'TK-BC-EXAMPLE-001',
+    type: 'main',
+    status: 'Active',
+    company: 'Example TikTok Corp',
+    departments: [], // 暂时不选择部门
+    defaultSettings: {
+      industryId: 'IND-EXAMPLE',
+      businessType: 'E-commerce',
+      billingGroupId: 'BG-EXAMPLE'
+      // 暂时不设置splitBillingMode
+    },
+    fgInfo: {
+      dhId: '12345690',
+      environment: 'SG'
+    },
+    createdAt: '2024-01-26',
+    lastUpdated: '2024-01-26 15:35:00',
+    optimizers: []
   }
 ];
 
@@ -541,76 +588,20 @@ export const mockOptimizers: Optimizer[] = [
     createdAt: '2024-01-10',
     lastUpdated: '2024-01-23 10:20:00'
   },
-
-  // 刚从接口同步的示例数据 - 展示需要人工补全的状态
-  
-  // 1. 没有子MCC的谷歌主MCC (需要添加子MCC)
+  // 设计师示例（无媒体权限）
   {
-    id: '100',
-    platformId: '2',
-    name: 'New Synced Main MCC',
-    accountId: 'MCC-SYNC-001',
-    type: 'mcc',
-    status: 'Active',
-    company: 'Newly Synced Corp',
-    departments: [], // 空的，因为还没有子MCC
-    defaultSettings: {
-      mccType: 'main',
-      mainMccId: 'MCC-SYNC-001',
-      paymentProfileId: '' // 需要人工补全
-    },
-    fgInfo: {
-      dhId: '99999901',
-      environment: 'SG'
-    },
-    createdAt: '2025-01-16',
-    lastUpdated: '2025-01-16 09:00:00',
-    optimizers: []
-  },
-
-  // 2. 未选择分账模式的TikTok BC (需要选择分账模式)
-  {
-    id: '101',
-    platformId: '1',
-    name: 'New TikTok BC Account',
-    accountId: 'TT-SYNC-999888777',
-    type: 'main',
-    status: 'Active',
-    company: 'TikTok Sync Corp',
-    departments: [], // 空的，需要人工选择
-    defaultSettings: {
-      industryId: 'IND-999',
-      businessType: 'Media & Entertainment',
-      billingGroupId: 'BG-99999',
-      splitBillingMode: '' // 未选择，需要人工补全
-    },
-    fgInfo: {
-      dhId: '99999902',
-      environment: 'US'
-    },
-    createdAt: '2025-01-16',
-    lastUpdated: '2025-01-16 09:15:00',
-    optimizers: []
-  },
-
-  // 3. 未配置产品组的Facebook BM (需要配置相关信息)
-  {
-    id: '102',
-    platformId: '4',
-    name: 'New Facebook BM',
-    accountId: 'FB-BM-SYNC123456',
-    type: 'main',
-    status: 'Active',
-    company: 'Facebook Sync Ltd',
-    departments: [], // 空的，需要人工选择
-    defaultSettings: {}, // 空的默认设置
-    fgInfo: {
-      dhId: '99999903',
-      environment: 'EU'
-    },
-    createdAt: '2025-01-16',
-    lastUpdated: '2025-01-16 09:30:00',
-    optimizers: []
+    id: '11',
+    slackName: '@design.wang',
+    email: 'design.wang@company.com',
+    internalEmail: 'design.wang@internal.com',
+    trainingEmail: 'design.wang.training@platform.com',
+    organizationDepartment: '041',
+    permissionDepartments: ['041'],
+    position: 'UI/UX Designer',
+    status: 'active',
+    mediaPermissions: [], // 没有任何媒体权限
+    createdAt: '2024-01-20',
+    lastUpdated: '2024-01-26 09:15:00'
   }
 ];
 
@@ -666,11 +657,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'admin001@company.com',
     module: '媒体信息',
     action: '新增',
-    object: 'TikTok Test Account',
-    attribute: '分账模式',
     description: '新增TikTok媒体账户的分账模式配置',
-    originalValue: '',
-    newValue: 'ACCOUNT',
+    originalValue: '{}',
+    newValue: '{\n  "accountId": "TK-BC-TEST-001",\n  "splitBillingMode": "ACCOUNT",\n  "platform": "TikTok"\n}',
     ipAddress: '192.168.1.100'
   },
   {
@@ -679,11 +668,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'zhang.san@company.com',
     module: '优化师管理',
     action: '修改',
-    object: 'zhang.san@company.com',
-    attribute: '状态',
     description: '修改优化师状态',
-    originalValue: 'active',
-    newValue: 'closed',
+    originalValue: '{\n  "email": "zhang.san@company.com",\n  "status": "active"\n}',
+    newValue: '{\n  "email": "zhang.san@company.com",\n  "status": "closed"\n}',
     ipAddress: '192.168.1.101'
   },
   {
@@ -692,11 +679,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'li.si@company.com',
     module: '媒体信息',
     action: '修改',
-    object: 'Google主MCC账户',
-    attribute: 'Payment Profile ID',
     description: '更新Google主MCC的Payment Profile ID',
-    originalValue: 'PAY-12345',
-    newValue: 'PAY-67890',
+    originalValue: '{\n  "accountId": "MCC-001",\n  "paymentProfileId": "PAY-12345"\n}',
+    newValue: '{\n  "accountId": "MCC-001",\n  "paymentProfileId": "PAY-67890"\n}',
     ipAddress: '192.168.1.102'
   },
   {
@@ -705,11 +690,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'wang.wu@company.com',
     module: '产品组管理',
     action: '修改',
-    object: 'F10',
-    attribute: '余额不足通知人',
     description: '添加余额不足通知人',
-    originalValue: '',
-    newValue: 'growth.manager@company.com',
+    originalValue: '{\n  "productGroup": "F10",\n  "balanceNotificationPerson": []\n}',
+    newValue: '{\n  "productGroup": "F10",\n  "balanceNotificationPerson": ["growth.manager@company.com"]\n}',
     ipAddress: '192.168.1.103'
   },
   {
@@ -718,11 +701,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'zhao.liu@company.com',
     module: '产品组管理',
     action: '修改',
-    object: 'F35',
-    attribute: 'Facebook时区配置',
     description: '更新Facebook时区配置',
-    originalValue: 'UTC+8 Asia/Singapore',
-    newValue: 'UTC+8 Asia/Shanghai',
+    originalValue: '{\n  "productGroup": "F35",\n  "facebook": {\n    "timezones": [{\n      "code": "UTC+8",\n      "location": "Asia/Singapore"\n    }]\n  }\n}',
+    newValue: '{\n  "productGroup": "F35",\n  "facebook": {\n    "timezones": [{\n      "code": "UTC+8",\n      "location": "Asia/Shanghai"\n    }]\n  }\n}',
     ipAddress: '192.168.1.104'
   },
   {
@@ -731,11 +712,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'admin001@company.com',
     module: '优化师管理',
     action: '新增',
-    object: 'new.optimizer@company.com',
-    attribute: 'Facebook权限',
     description: '为优化师添加Facebook权限',
-    originalValue: '',
-    newValue: 'test@fb.com',
+    originalValue: '{\n  "email": "new.optimizer@company.com",\n  "mediaPermissions": []\n}',
+    newValue: '{\n  "email": "new.optimizer@company.com",\n  "mediaPermissions": [{\n    "platform": "Facebook",\n    "email": "test@fb.com"\n  }]\n}',
     ipAddress: '192.168.1.105'
   },
   {
@@ -744,11 +723,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'manager@company.com',
     module: '媒体信息',
     action: '修改',
-    object: 'Facebook BM Test',
-    attribute: '部门',
     description: '修改Facebook BM所属部门',
-    originalValue: '010',
-    newValue: '045',
+    originalValue: '{\n  "accountId": "FB-BM-TEST-001",\n  "departments": ["010"]\n}',
+    newValue: '{\n  "accountId": "FB-BM-TEST-001",\n  "departments": ["045"]\n}',
     ipAddress: '192.168.1.106'
   },
   {
@@ -757,11 +734,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'test.user@company.com',
     module: '优化师管理',
     action: '删除',
-    object: 'old.optimizer@company.com',
-    attribute: 'Google权限',
     description: '删除优化师的Google权限',
-    originalValue: 'old@google.com',
-    newValue: '',
+    originalValue: '{\n  "email": "old.optimizer@company.com",\n  "mediaPermissions": [{\n    "platform": "Google Ads",\n    "email": "old@google.com"\n  }]\n}',
+    newValue: '{\n  "email": "old.optimizer@company.com",\n  "mediaPermissions": []\n}',
     ipAddress: '192.168.1.107'
   },
   {
@@ -770,11 +745,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'supervisor@company.com',
     module: '产品组管理',
     action: '修改',
-    object: 'F45',
-    attribute: 'TikTok推广链接',
     description: '更新TikTok推广链接',
-    originalValue: 'https://old.link.com',
-    newValue: 'https://new.link.com',
+    originalValue: '{\n  "productGroup": "F45",\n  "tiktok": {\n    "promotionLink": "https://old.link.com"\n  }\n}',
+    newValue: '{\n  "productGroup": "F45",\n  "tiktok": {\n    "promotionLink": "https://new.link.com"\n  }\n}',
     ipAddress: '192.168.1.108'
   },
   {
@@ -783,11 +756,9 @@ export const mockOperationLogs: OperationLog[] = [
     userId: 'li.si@company.com',
     module: '优化师管理',
     action: '新增',
-    object: 'li.si@company.com',
-    attribute: 'Facebook权限',
     description: '为优化师添加Facebook媒体权限',
-    originalValue: '',
-    newValue: 'Facebook Business Manager Access',
+    originalValue: '{\n  \"email\": \"li.si@company.com\",\n  \"mediaPermissions\": []\n}',
+    newValue: '{\n  \"email\": \"li.si@company.com\",\n  \"mediaPermissions\": [{\n    \"platform\": \"Facebook\",\n    \"accountManager\": \"Facebook Business Manager\",\n    \"email\": \"li.si.facebook@gmail.com\"\n  }]\n}',
     ipAddress: '192.168.1.109'
   }
 ];
@@ -801,11 +772,6 @@ export const mockRefreshRecords: RefreshRecord[] = [
     refreshType: '账户管家',
     refreshTarget: '全部',
     status: '成功',
-    results: {
-      added: ['Google Ads - New Account 1', 'TikTok - Test Account 2'],
-      removed: ['Facebook - Closed Account'],
-      unchanged: 25
-    },
     duration: 45
   },
   {
@@ -816,11 +782,6 @@ export const mockRefreshRecords: RefreshRecord[] = [
     refreshType: 'Facebook BM Client账户',
     refreshTarget: 'EWP : BM-123456789',
     status: '成功',
-    results: {
-      added: ['Client Account 001', 'Client Account 002'],
-      removed: [],
-      unchanged: 8
-    },
     duration: 12
   },
   {
@@ -852,11 +813,6 @@ export const mockRefreshRecords: RefreshRecord[] = [
     refreshType: '账户管家',
     refreshTarget: '全部',
     status: '成功',
-    results: {
-      added: ['AppLovin - New Campaign Account'],
-      removed: ['Unity - Deprecated Account', 'Moloco - Test Account'],
-      unchanged: 23
-    },
     duration: 38
   },
   {
@@ -867,11 +823,6 @@ export const mockRefreshRecords: RefreshRecord[] = [
     refreshType: 'Facebook BM Client账户',
     refreshTarget: 'Test BM : FB-BM-987654321',
     status: '成功',
-    results: {
-      added: [],
-      removed: ['Deprecated Client 001'],
-      unchanged: 5
-    },
     duration: 25
   },
   {
@@ -882,11 +833,6 @@ export const mockRefreshRecords: RefreshRecord[] = [
     refreshType: '账户管家',
     refreshTarget: '全部',
     status: '成功',
-    results: {
-      added: ['Moloco - Campaign Account 3', 'Unity - Production Account'],
-      removed: [],
-      unchanged: 27
-    },
     duration: 135
   }
 ];

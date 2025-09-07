@@ -151,24 +151,6 @@ export const OperationLogs: React.FC = () => {
     }
   };
 
-  // 获取属性图标
-  const getAttributeIcon = (attribute: string) => {
-    if (attribute.includes('权限')) {
-      return Shield;
-    } else if (attribute.includes('状态')) {
-      return Settings;
-    } else if (attribute.includes('部门')) {
-      return Building2;
-    } else if (attribute.includes('通知')) {
-      return Bell;
-    } else if (attribute.includes('时区') || attribute.includes('配置')) {
-      return Settings;
-    } else if (attribute.includes('账户')) {
-      return Monitor;
-    } else {
-      return FileText;
-    }
-  };
 
   // 时间格式化 - 按照新的要求显示为日期分钟
   const formatTime = (timestamp: string) => {
@@ -329,12 +311,6 @@ export const OperationLogs: React.FC = () => {
                   操作
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  对象
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  属性
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   原值
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -345,7 +321,6 @@ export const OperationLogs: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLogs.map((log) => {
                 const ActionIcon = getActionIcon(log.action);
-                const AttributeIcon = getAttributeIcon(log.attribute);
                 
                 return (
                     <tr key={log.id} className="hover:bg-gray-50">
@@ -379,27 +354,19 @@ export const OperationLogs: React.FC = () => {
                           {actionOptions.find(opt => opt.value === log.action)?.label || log.action}
                     </span>
                   </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-900">{log.object}</span>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                          <pre className="whitespace-pre-wrap font-mono text-xs">
+                            {log.originalValue || '-'}
+                          </pre>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
-                          <AttributeIcon className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-900">{log.attribute}</span>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                          <pre className="whitespace-pre-wrap font-mono text-xs">
+                            {log.newValue || '-'}
+                          </pre>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600 bg-red-50 px-2 py-1 rounded">
-                          {log.originalValue || '-'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600 bg-green-50 px-2 py-1 rounded">
-                          {log.newValue || '-'}
-                        </span>
                       </td>
                 </tr>
                 );

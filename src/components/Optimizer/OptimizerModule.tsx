@@ -461,19 +461,7 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = () => {
       );
     }
     
-    // 如果是搜索结果，进一步过滤显示匹配搜索的权限
-    if (appliedSearch.trim() && isExpanded) {
-      displayPermissions = displayPermissions.filter(permission => {
-        const permissionText = [
-          permission.platform,
-          permission.accountManager || '',
-          permission.email,
-          permission.facebookUserId || ''
-        ].join(' ').toLowerCase();
-        
-        return permissionText.includes(appliedSearch.toLowerCase());
-      });
-    }
+    // 注意：不再根据搜索关键词过滤权限，始终显示所有权限
     
     const permissionCount = displayPermissions.length;
     const totalPermissionCount = optimizer.mediaPermissions.length;
@@ -492,8 +480,8 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = () => {
     
     // 计数显示逻辑
     const getCountDisplay = () => {
-      // 如果有媒体类型筛选或搜索筛选，并且显示数量与总数不同，显示分数格式
-      if ((appliedFilters.mediaTypes.length > 0 || (appliedSearch.trim() && isExpanded)) && permissionCount !== totalPermissionCount) {
+      // 如果有媒体类型筛选，并且显示数量与总数不同，显示分数格式
+      if (appliedFilters.mediaTypes.length > 0 && permissionCount !== totalPermissionCount) {
         return `(${permissionCount}/${totalPermissionCount})`;
       }
       return `(${permissionCount})`;
@@ -883,22 +871,11 @@ export const OptimizerModule: React.FC<OptimizerModuleProps> = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        {isEditing ? (
-                          <select
-                            value={editForm.status || ''}
-                            onChange={(e) => updateEditForm('status', e.target.value)}
-                            className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="active">Active</option>
-                            <option value="closed">Closed</option>
-                          </select>
-                        ) : (
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            optimizer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {optimizer.status === 'active' ? 'Active' : 'Closed'}
-                          </span>
-                        )}
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          optimizer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {optimizer.status === 'active' ? 'Active' : 'Closed'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         <div className="truncate">{optimizer.lastUpdated}</div>

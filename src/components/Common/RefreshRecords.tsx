@@ -7,8 +7,6 @@ import {
   Loader, 
   ChevronDown, 
   ChevronUp,
-  Plus,
-  Minus,
   FileText,
   TrendingUp,
   RefreshCw,
@@ -430,62 +428,14 @@ const RefreshRecords: React.FC<RefreshRecordsProps> = ({ isOpen, onClose }) => {
                               </div>
                               <p className="text-blue-700 text-sm mt-1">请耐心等待刷新完成</p>
                             </div>
-                          ) : record.results ? (
-                            <div className="space-y-3">
-                              {/* 新增 */}
-                              {record.results.added && record.results.added.length > 0 && (
-                                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                                  <div className="flex items-center space-x-2 text-green-800 mb-2">
-                                    <Plus className="w-4 h-4" />
-                                    <span className="font-medium">新增 ({record.results.added.length})</span>
-                                  </div>
-                                  <div className="space-y-1">
-                                    {record.results.added.map((item, index) => (
-                                      <div key={index} className="text-sm text-green-700 bg-green-100 px-2 py-1 rounded">
-                                        {item}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* 减少 */}
-                              {record.results.removed && record.results.removed.length > 0 && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                                  <div className="flex items-center space-x-2 text-red-800 mb-2">
-                                    <Minus className="w-4 h-4" />
-                                    <span className="font-medium">减少 ({record.results.removed.length})</span>
-                                  </div>
-                                  <div className="space-y-1">
-                                    {record.results.removed.map((item, index) => (
-                                      <div key={index} className="text-sm text-red-700 bg-red-100 px-2 py-1 rounded">
-                                        {item}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* 未变更 */}
-                              {record.results.unchanged !== undefined && record.results.unchanged > 0 && (
-                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                  <div className="flex items-center space-x-2 text-gray-700">
-                                    <FileText className="w-4 h-4" />
-                                    <span className="font-medium">未变更: {record.results.unchanged} 个账户</span>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* 无变更的情况 */}
-                              {(!record.results.added || record.results.added.length === 0) &&
-                               (!record.results.removed || record.results.removed.length === 0) &&
-                               (record.results.unchanged === undefined || record.results.unchanged === 0) && (
-                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                                  <div className="flex items-center space-x-2 text-gray-700">
-                                    <CheckCircle className="w-4 h-4" />
-                                    <span className="font-medium">刷新完成，无数据变更</span>
-                                  </div>
-                                </div>
+                          ) : record.status === '成功' ? (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                              <div className="flex items-center space-x-2 text-green-800">
+                                <CheckCircle className="w-4 h-4" />
+                                <span className="font-medium">刷新完成</span>
+                              </div>
+                              {record.duration && (
+                                <p className="text-green-700 text-sm mt-1">执行时长: {record.duration}秒</p>
                               )}
                             </div>
                           ) : (

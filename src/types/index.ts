@@ -97,10 +97,8 @@ export interface OperationLog {
   userId: string; // 用户邮箱
   module: '媒体信息' | '优化师管理' | '产品组管理';
   action: '新增' | '修改' | '删除';
-  object: string; // 具体对象名称，如 F35、zhang.san@email.com、Facebook BM等
-  attribute: string; // 操作的具体属性，如 余额不足通知人、状态、权限等
-  originalValue: string; // 原值
-  newValue: string; // 新值
+  originalValue: string; // 原值 - 支持JSON格式的结构化数据
+  newValue: string; // 新值 - 支持JSON格式的结构化数据
   description?: string;
   ipAddress?: string;
 }
@@ -121,11 +119,6 @@ export interface RefreshRecord {
   refreshType: '账户管家' | 'Facebook BM Client账户';
   refreshTarget: string; // 刷新对象
   status: '执行中' | '成功' | '失败';
-  results?: {
-    added?: string[]; // 新增的账户/对象
-    removed?: string[]; // 减少的账户/对象
-    unchanged?: number; // 未变更的数量
-  };
   errorMessage?: string; // 失败时的错误信息
   duration?: number; // 执行时长（秒）
 }
