@@ -1,137 +1,12 @@
 import React, { useState } from 'react';
-import { Edit2, Save, X, Settings } from 'lucide-react';
+import { Edit2, Save, X } from 'lucide-react';
 import { NotificationConfig } from '../../types';
 import { mockNotificationConfig } from '../../data/mockData';
-
-interface ColumnEditModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  columnName: string;
-  field: keyof NotificationConfig;
-  currentData: NotificationConfig[];
-  currentItemId: string;
-  isMultiple: boolean;
-  currentValue: string | string[];
-  onApply: (field: keyof NotificationConfig, data: any) => void;
-}
-
-const ColumnEditModal: React.FC<ColumnEditModalProps> = ({
-  isOpen,
-  onClose,
-  columnName,
-  field,
-  currentData: _currentData,
-  currentItemId: _currentItemId,
-  isMultiple,
-  currentValue: _currentValue,
-  onApply
-}) => {
-  const [selectedOptions, setSelectedOptions] = useState<{
-    growthManager: boolean;
-  }>({
-    growthManager: false
-  });
-
-
-
-  // 初始化选中状态
-  React.useEffect(() => {
-    if (isOpen) {
-      // 默认不勾选，让用户主动选择
-      setSelectedOptions({
-        growthManager: false
-      });
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const handleApply = () => {
-    const result: any = {};
-    
-    if (isMultiple) {
-      // 多选列：追加模式，更新所有行
-      result.operation = 'updateAllRows';
-      result.growthManager = selectedOptions.growthManager;
-    } else {
-      // 单选列：覆盖模式，让applyColumnEdit为每一行使用各自的增长负责人
-      result.operation = 'updateAllRowsWithOwnGrowthManager';
-      result.growthManager = selectedOptions.growthManager;
-    }
-    
-    onApply(field, result);
-    onClose();
-    setSelectedOptions({ growthManager: false });
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">编辑{columnName}</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        
-        <div className="p-6 space-y-4">
-          <div className="space-y-3">
-            <label className="flex items-center space-x-3">
-              <input
-                type={isMultiple ? "checkbox" : "radio"}
-                checked={selectedOptions.growthManager}
-                onChange={(e) => {
-                  if (isMultiple) {
-                    setSelectedOptions(prev => ({ ...prev, growthManager: e.target.checked }));
-                  } else {
-                    setSelectedOptions(prev => ({ 
-                      ...prev, 
-                      growthManager: e.target.checked
-                    }));
-                  }
-                }}
-                className="text-blue-600 focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-900">添加本组增长负责人</span>
-            </label>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            取消
-          </button>
-          <button
-            onClick={handleApply}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            应用
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const NotificationTab: React.FC = () => {
   const [notificationConfig, setNotificationConfig] = useState<NotificationConfig[]>(mockNotificationConfig);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<Partial<NotificationConfig>>({});
-  const [columnEditModal, setColumnEditModal] = useState<{
-    isOpen: boolean;
-    columnName: string;
-    field: keyof NotificationConfig;
-  }>({
-    isOpen: false,
-    columnName: '',
-    field: 'accountApprovalPerson'
-  });
 
   // 开始编辑
   const startEditing = (item: NotificationConfig) => {
@@ -172,117 +47,6 @@ export const NotificationTab: React.FC = () => {
     setEditingData(prev => ({ ...prev, [field]: value }));
   };
 
-  // 打开列编辑模态框
-  const openColumnEdit = (columnName: string, field: keyof NotificationConfig) => {
-    setColumnEditModal({
-      isOpen: true,
-      columnName,
-      field
-    });
-  };
-
-  // 应用列编辑
-  const applyColumnEdit = (field: keyof NotificationConfig, data: any) => {
-    if (data.operation === 'updateAllRows') {
-      // 多选列：追加模式，更新所有行
-      setNotificationConfig(prev => 
-        prev.map(item => {
-          const currentValue = item[field];
-          const currentArray = Array.isArray(currentValue) ? currentValue : [];
-          let newArray = [...currentArray];
-          
-          // 处理增长负责人邮箱
-          if (data.growthManager) {
-            // 添加本组的增长负责人邮箱
-            item.growthManager.forEach(gmEmail => {
-              if (!newArray.includes(gmEmail)) {
-                newArray.push(gmEmail);
-              }
-            });
-          } else {
-            // 移除本组的增长负责人邮箱
-            newArray = newArray.filter(email => !item.growthManager.includes(email));
-          }
-          
-          return {
-            ...item,
-            [field]: newArray
-          };
-        })
-      );
-      
-      // 如果当前正在编辑，也更新编辑数据
-      if (editingId) {
-        const editingItem = notificationConfig.find(item => item.id === editingId);
-        if (editingItem) {
-          setEditingData(prev => {
-            const currentValue = prev[field];
-            const currentArray = Array.isArray(currentValue) ? currentValue : [];
-            let newArray = [...currentArray];
-            
-            // 处理增长负责人邮箱
-            if (data.growthManager) {
-              // 添加本组的增长负责人邮箱
-              editingItem.growthManager.forEach(gmEmail => {
-                if (!newArray.includes(gmEmail)) {
-                  newArray.push(gmEmail);
-                }
-              });
-            } else {
-              // 移除本组的增长负责人邮箱
-              newArray = newArray.filter(email => !editingItem.growthManager.includes(email));
-            }
-            
-            return { ...prev, [field]: newArray };
-          });
-        }
-      }
-    } else if (data.operation === 'updateAllRowsWithOwnGrowthManager') {
-      // 单选列：为每一行使用各自的增长负责人
-      setNotificationConfig(prev => 
-        prev.map(item => {
-          if (data.growthManager) {
-            // 使用本组第一个增长负责人邮箱
-            return {
-              ...item,
-              [field]: item.growthManager[0] || ''
-            };
-          } else {
-            return {
-              ...item,
-              [field]: ''
-            };
-          }
-        })
-      );
-      
-      // 如果当前正在编辑，也更新编辑数据
-      if (editingId) {
-        const editingItem = notificationConfig.find(item => item.id === editingId);
-        if (editingItem) {
-          setEditingData(prev => ({ 
-            ...prev, 
-            [field]: data.growthManager ? (editingItem.growthManager[0] || '') : ''
-          }));
-        }
-      }
-    } else {
-      // 单选列：覆盖模式（保留原有逻辑）
-      setNotificationConfig(prev => 
-        prev.map(item => {
-          return {
-            ...item,
-            [field]: data.newValue
-          };
-        })
-      );
-      
-      // 如果当前正在编辑，也更新编辑数据
-      if (editingId) {
-        setEditingData(prev => ({ ...prev, [field]: data.newValue }));
-      }
-    }
-  };
 
 
 
@@ -324,40 +88,13 @@ export const NotificationTab: React.FC = () => {
                   增长负责人
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
-                  <div className="flex items-center space-x-2">
-                    <span>开户申请审批人</span>
-                    <button
-                      onClick={() => openColumnEdit('开户申请审批人', 'accountApprovalPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
+                  开户申请审批人
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
-                  <div className="flex items-center space-x-2">
-                    <span>权限申请审批人</span>
-                    <button
-                      onClick={() => openColumnEdit('权限申请审批人', 'permissionApprovalPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
+                  权限申请审批人
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
-                  <div className="flex items-center space-x-2">
-                    <span>余额不足通知人</span>
-                    <button
-                      onClick={() => openColumnEdit('余额不足通知人', 'balanceNotificationPerson')}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="编辑整列"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </div>
+                  余额不足通知人
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
                   余额不足通知频道
@@ -577,19 +314,6 @@ export const NotificationTab: React.FC = () => {
       <div className="text-sm text-gray-500 text-center">
         共 {notificationConfig.length} 个产品组
       </div>
-
-      {/* 列编辑模态框 */}
-      <ColumnEditModal
-        isOpen={columnEditModal.isOpen}
-        onClose={() => setColumnEditModal(prev => ({ ...prev, isOpen: false }))}
-        columnName={columnEditModal.columnName}
-        field={columnEditModal.field}
-        currentData={notificationConfig}
-        currentItemId={'all'}
-        isMultiple={['balanceNotificationPerson'].includes(columnEditModal.field)}
-        currentValue={editingId ? (editingData[columnEditModal.field] as string | string[] || '') : ''}
-        onApply={applyColumnEdit}
-      />
     </div>
   );
 }; 
